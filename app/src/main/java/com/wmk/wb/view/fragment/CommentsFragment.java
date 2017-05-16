@@ -12,7 +12,7 @@ import android.view.ViewGroup;
 import com.wmk.wb.R;
 import com.wmk.wb.presenter.DataManager;
 import com.wmk.wb.model.entity.FinalCommentsData;
-import com.wmk.wb.model.entity.RetJson.CommentsData;
+import com.wmk.wb.model.entity.retjson.CommentsData;
 import com.wmk.wb.model.entity.StaticData;
 import com.wmk.wb.presenter.adapter.MyCommentsRecyclerViewAdapter;
 import com.wmk.wb.utils.ConvertDate;
@@ -90,8 +90,14 @@ public class CommentsFragment extends Fragment{
         };
         list.addOnScrollListener(end);*/
         list.setNestedScrollingEnabled(false);
-        getComments(0);
+       // getComments(0);
         return view;
+    }
+
+    @Override
+    public void onResume() {
+        getComments(0);
+        super.onResume();
     }
 
 
@@ -119,8 +125,12 @@ public class CommentsFragment extends Fragment{
             public void onNext(CommentsData commentsdata) {
                 FinalCommentsData fdata;
                 List<FinalCommentsData>data=new ArrayList<>();
+                if(max_id==0)
+                {
+                    StaticData.getInstance().cdata.clear();
+                }
                 for (int i = 0; i < commentsdata.comments.size(); i++) {
-                    if(i==0&&max_id!=0)
+                    if(i==0&&max_id!=0)//防止刷新时候有一条重复
                         i=1;
                     fdata=new FinalCommentsData();
                     fdata.setHeadurl(commentsdata.comments.get(i).user.getAvatar_large());

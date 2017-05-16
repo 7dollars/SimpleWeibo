@@ -1,17 +1,17 @@
 package com.wmk.wb.presenter;
 
-import com.wmk.wb.model.entity.RetJson.Access_token;
-import com.wmk.wb.model.entity.RetJson.CommentsData;
-import com.wmk.wb.model.entity.RetJson.Statuses;
-import com.wmk.wb.model.entity.RetJson.User;
-import com.wmk.wb.model.entity.RetJson.WbData;
+import com.wmk.wb.model.entity.retjson.Access_token;
+import com.wmk.wb.model.entity.retjson.CommentsData;
+import com.wmk.wb.model.entity.retjson.Statuses;
+import com.wmk.wb.model.entity.retjson.User;
+import com.wmk.wb.model.entity.retjson.WbData;
 
 
 import okhttp3.ResponseBody;
 import retrofit2.http.GET;
+import retrofit2.http.Headers;
 import retrofit2.http.POST;
 import retrofit2.http.Query;
-import retrofit2.http.Url;
 import rx.Observable;
 
 /**
@@ -39,4 +39,10 @@ public interface IDataManager {
 
     @POST("create.json")
     Observable<ResponseBody> sendComments(@Query("access_token") String access_token, @Query("comment") String comment ,@Query("id") long id);
+
+    @POST("repost.json")
+    Observable<ResponseBody> relay(@Query("access_token") String access_token , @Query("id") long id, @Query("status") String status);
+
+    @POST("update.json")
+    Observable<ResponseBody> create(@Query("access_token") String access_token , @Query("status") String status);
 }

@@ -1,28 +1,27 @@
 package com.wmk.wb.presenter;
 
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-
-import com.wmk.wb.R;
 import com.wmk.wb.model.entity.KEY;
-import com.wmk.wb.model.entity.RetJson.Access_token;
-import com.wmk.wb.model.entity.RetJson.CommentsData;
-import com.wmk.wb.model.entity.RetJson.User;
+import com.wmk.wb.model.entity.retjson.Access_token;
+import com.wmk.wb.model.entity.retjson.CommentsData;
+import com.wmk.wb.model.entity.retjson.Statuses;
+import com.wmk.wb.model.entity.retjson.User;
 import com.wmk.wb.model.entity.StaticData;
-import com.wmk.wb.model.entity.RetJson.WbData;
+import com.wmk.wb.model.entity.retjson.WbData;
 import com.wmk.wb.utils.SpUtil;
 
-import java.io.InputStream;
+import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
+import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 import okhttp3.ResponseBody;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Func1;
 import rx.schedulers.Schedulers;
 
 /**
@@ -152,10 +151,11 @@ public class DataManager {
                 .subscribe(mSubscriber);
 
     }
-    public void setComments(Subscriber<ResponseBody> mSubscriber, long id, long max_id, String text) {
+    public void setComments(Subscriber<ResponseBody> mSubscriber, long id, String text) {
         String baseURL = "https://api.weibo.com/2/comments/";
         OkHttpClient.Builder httpClientBuilder = new OkHttpClient.Builder();
         httpClientBuilder.connectTimeout(5, TimeUnit.SECONDS);
+        httpClientBuilder.addInterceptor(new RequestInterceptor());
 
         retrofit = new Retrofit.Builder()
                 .baseUrl(baseURL)
@@ -174,5 +174,56 @@ public class DataManager {
                     .subscribe(mSubscriber);
         }
         //  Log.e("123",SpUtil.getString(StaticData.getInstance().getmContext(),"uid",null));
+    }
+    public void relay(Subscriber<ResponseBody> mSubscriber, long id, String text) {
+        String baseURL = "https://api.weibo.com/2/statuses/";
+        OkHttpClient.Builder httpClientBuilder = new OkHttpClient.Builder();
+        httpClientBuilder.connectTimeout(5, TimeUnit.SECONDS);
+        httpClientBuilder.addInterceptor(new RequestInterceptor());
+        retrofit = new Retrofit.Builder()
+                .baseUrl(baseURL)
+                .client(httpClientBuilder.build())
+                .addConverterFactory(GsonConverterFactory.create())
+                .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
+                .build();
+
+        IDataManager iDataManager = retrofit.create(IDataManager.class);
+
+        iDataManager.relay(SpUtil.getString(StaticData.getInstance().getmContext(), "token", null),id,text )
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(mSubscriber);
+        //  Log.e("123",SpUtil.getString(StaticData.getInstance().getmContext(),"uid",null));
+    }
+    public void createNew(Subscriber<ResponseBody> mSubscriber, String text) {
+        String baseURL = "https://api.weibo.com/2/statuses/";
+        OkHttpClient.Builder httpClientBuilder = new OkHttpClient.Builder();
+        httpClientBuilder.connectTimeout(5, TimeUnit.SECONDS);
+        httpClientBuilder.addInterceptor(new RequestInterceptor());
+        retrofit = new Retrofit.Builder()
+                .baseUrl(baseURL)
+                .client(httpClientBuilder.build())
+                .addConverterFactory(GsonConverterFactory.create())
+                .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
+                .build();
+
+        IDataManager iDataManager = retrofit.create(IDataManager.class);
+
+        iDataManager.create(SpUtil.getString(StaticData.getInstance().getmContext(), "token", null),text )
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(mSubscriber);
+        //  Log.e("123",SpUtil.getString(StaticData.getInstance().getmContext(),"uid",null));
+    }
+    private class RequestInterceptor implements Interceptor {
+        @Override
+        public Response intercept(Chain chain) throws IOException {
+            Request request = chain.request()
+                    .newBuilder()
+                    .addHeader("Content-Type", "application/x-www-form-urlencoded")
+//                    .addHeader("Accept-Encoding", "*")
+                    .build();
+            return chain.proceed(request);
+        }
     }
 }

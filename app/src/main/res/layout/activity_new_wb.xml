@@ -39,5 +39,6 @@
         android:inputType="text|textMultiLine"
         android:layout_margin="10dp"
         android:lineSpacingExtra="3dp"
-        android:background="@null"/>
+        android:background="@null"
+        />
 </LinearLayout>

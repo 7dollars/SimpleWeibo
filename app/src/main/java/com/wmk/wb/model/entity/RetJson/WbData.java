@@ -1,4 +1,4 @@
-package com.wmk.wb.model.entity.RetJson;
+package com.wmk.wb.model.entity.retjson;
 
 import com.google.gson.annotations.SerializedName;
 

@@ -20,8 +20,11 @@
         </activity>
         <activity android:name=".view.LoginActivity" />
         <activity android:name=".view.DetialActivity" />
-        <activity android:name=".view.ImageActivity"></activity>
-        <activity android:name=".view.SendCommentActivity"></activity>
+        <activity android:name=".view.ImageActivity" />
+        <activity android:name=".view.SendCommentActivity"
+            android:windowSoftInputMode="stateVisible|adjustResize"/>
+        <activity android:name=".view.NewWBActivity"
+            android:windowSoftInputMode="stateVisible|adjustResize"></activity>
     </application>
 
 </manifest>

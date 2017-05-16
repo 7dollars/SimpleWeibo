@@ -1,7 +1,7 @@
 package com.wmk.wb.view;
 
 import android.content.Intent;
-import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.support.design.widget.NavigationView;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -20,14 +20,24 @@ import android.widget.Toast;
 
 
 import com.bumptech.glide.Glide;
+import com.special.ResideMenu.ResideMenu;
+import com.special.ResideMenu.ResideMenuItem;
+import com.wangjie.androidbucket.utils.ABTextUtil;
+import com.wangjie.androidbucket.utils.imageprocess.ABShape;
+import com.wangjie.rapidfloatingactionbutton.RapidFloatingActionButton;
+import com.wangjie.rapidfloatingactionbutton.RapidFloatingActionHelper;
+import com.wangjie.rapidfloatingactionbutton.RapidFloatingActionLayout;
+import com.wangjie.rapidfloatingactionbutton.contentimpl.labellist.RFACLabelItem;
+import com.wangjie.rapidfloatingactionbutton.contentimpl.labellist.RapidFloatingActionContentLabelList;
+import com.wangjie.rapidfloatingactionbutton.listener.OnRapidFloatingActionListener;
 import com.wmk.wb.R;
 import com.wmk.wb.presenter.DataManager;
 import com.wmk.wb.model.entity.DetialsInfo;
-import com.wmk.wb.model.entity.RetJson.Access_token;
+import com.wmk.wb.model.entity.retjson.Access_token;
 import com.wmk.wb.model.entity.FinalViewData;
-import com.wmk.wb.model.entity.RetJson.User;
+import com.wmk.wb.model.entity.retjson.User;
 import com.wmk.wb.model.entity.StaticData;
-import com.wmk.wb.model.entity.RetJson.WbData;
+import com.wmk.wb.model.entity.retjson.WbData;
 import com.wmk.wb.presenter.EndlessRecyclerOnScrollListener;
 import com.wmk.wb.presenter.IMainAC;
 import com.wmk.wb.presenter.MainAC;
@@ -41,10 +51,11 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import de.hdodenhof.circleimageview.CircleImageView;
 import rx.Subscriber;
 
-public class MainActivity extends AppCompatActivity{
+public class MainActivity extends AppCompatActivity implements View.OnClickListener, RapidFloatingActionContentLabelList.OnRapidFloatingActionContentLabelListListener {
 
     @BindView(R.id.swipe)
     SwipeRefreshLayout swipe;
@@ -57,13 +68,20 @@ public class MainActivity extends AppCompatActivity{
 
     MainListAdapter ListAdapter;
 
-    @BindView(R.id.navigation_view)
-    NavigationView mNavigationView;
+ //   @BindView(R.id.navigation_view)
+ //   NavigationView mNavigationView;
 
-    @BindView(R.id.drawer_layout)
-    DrawerLayout dwlayout;
+ //   @BindView(R.id.drawer_layout)
+  //  DrawerLayout dwlayout;
 
 
+    @BindView(R.id.activity_main_rfal)
+    RapidFloatingActionLayout rfaLayout;
+    @BindView(R.id.activity_main_rfab)
+    RapidFloatingActionButton rfaBtn;
+
+    private RapidFloatingActionHelper rfabHelper;
+    private ResideMenu resideMenu;
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -87,6 +105,67 @@ public class MainActivity extends AppCompatActivity{
         actionBar.setHomeAsUpIndicator(R.mipmap.ic_menu_white_24dp);
         actionBar.setDisplayHomeAsUpEnabled(true);
 
+        RapidFloatingActionContentLabelList rfaContent = new RapidFloatingActionContentLabelList(this);
+        rfaContent.setOnRapidFloatingActionContentLabelListListener(this);
+        List<RFACLabelItem> items = new ArrayList<>();
+        items.add(new RFACLabelItem<Integer>()
+                .setResId(R.mipmap.ic_create_white_24dp)
+                .setIconNormalColor(0xffd84315)
+                .setIconPressedColor(0xffbf360c)
+                .setWrapper(0)
+        );
+        items.add(new RFACLabelItem<Integer>()
+                .setResId(R.mipmap.ic_more_vert_white_24dp)
+                .setIconNormalColor(0xff4e342e)
+                .setIconPressedColor(0xff3e2723)
+                .setLabelColor(Color.WHITE)
+                .setLabelSizeSp(14)
+                .setLabelBackgroundDrawable(ABShape.generateCornerShapeDrawable(0xaa000000, ABTextUtil.dip2px(this, 4)))
+                .setWrapper(1)
+        );
+        items.add(new RFACLabelItem<Integer>()
+
+                .setResId(R.mipmap.ic_menu_white_24dp)
+                .setIconNormalColor(0xff056f00)
+                .setIconPressedColor(0xff0d5302)
+                .setLabelColor(0xff056f00)
+                .setWrapper(2)
+        );
+
+        rfaContent
+                .setItems(items)
+                .setIconShadowRadius(ABTextUtil.dip2px(this, 5))
+                .setIconShadowColor(0xff888888)
+                .setIconShadowDy(ABTextUtil.dip2px(this, 5))
+        ;
+        rfabHelper = new RapidFloatingActionHelper(
+                this,
+                rfaLayout,
+                rfaBtn,
+                rfaContent
+        ).build();
+
+
+        resideMenu = new ResideMenu(this);
+        resideMenu.setBackground(R.color.colorPrimary);
+        resideMenu.attachToActivity(this);
+        resideMenu.setSwipeDirectionDisable(ResideMenu.DIRECTION_RIGHT);
+        resideMenu.setSwipeDirectionDisable(ResideMenu.DIRECTION_LEFT);
+        String titles[] = { "全部微博", "相互关注", "原创内容", "提到我的" };
+        int icon[] = { R.mipmap.ic_home_white_24dp, R.mipmap.ic_autorenew_white_24dp, R.mipmap.ic_create_white_24dp, R.mipmap.ic_messenger_white_24dp };
+        for (int i = 0; i < titles.length; i++){
+            ResideMenuItem item = new ResideMenuItem(this, icon[i], titles[i]);
+            item.setOnClickListener(this);
+            resideMenu.addMenuItem(item,  ResideMenu.DIRECTION_LEFT); // or  ResideMenu.DIRECTION_RIGHT
+        }
+        String titles1[] = { "登录"};
+        int icon1[] = { R.mipmap.ic_home_white_24dp};
+        for (int i = 0; i < titles1.length; i++){
+            ResideMenuItem item = new ResideMenuItem(this, icon1[i], titles1[i]);
+            item.setOnClickListener(this);
+            resideMenu.addMenuItem(item,  ResideMenu.DIRECTION_RIGHT); // or  ResideMenu.DIRECTION_RIGHT
+        }
+
         mToolbar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -101,7 +180,7 @@ public class MainActivity extends AppCompatActivity{
 
         Subscriber<DetialsInfo> mSubscriber=setDetialsSubscriber();
         Subscriber<String> mSubscriber2=setPicSubscriber();
-        ListAdapter=new MainListAdapter(MainActivity.this,swipe,mSubscriber,mSubscriber2);
+        ListAdapter=new MainListAdapter(MainActivity.this,swipe,mSubscriber,mSubscriber2,resideMenu);
         StaticData staticData=StaticData.getInstance();
         staticData.setmContext(MainActivity.this);
         getUserInfo();
@@ -121,7 +200,7 @@ public class MainActivity extends AppCompatActivity{
             }
         };//上拉加载
         main_list.addOnScrollListener(end);
-        mNavigationView.setNavigationItemSelectedListener(naviListener);
+      //  mNavigationView.setNavigationItemSelectedListener(naviListener);
         swipe.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
@@ -136,79 +215,36 @@ public class MainActivity extends AppCompatActivity{
             }
         });
 
-    }
+        swipe.setRefreshing(true);
+        getWbData(0);
 
-    @Override
-    public boolean onSupportNavigateUp() {
-        dwlayout.openDrawer(mNavigationView);
-        return super.onSupportNavigateUp();
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.main_menu, menu);
+        //getMenuInflater().inflate(R.menu.main_menu, menu);
         return true;
     }
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId())
         {
-            case R.id.login:
+
+            case android.R.id.home:
             {
+                resideMenu.openMenu(ResideMenu.DIRECTION_LEFT);
+                break;
+            }
+            default:{
                 Intent intent=new Intent();
                 intent.setClass(MainActivity.this,LoginActivity.class);
                 startActivityForResult(intent,0);
                 break;
             }
-            default:break;
         }
         return super.onOptionsItemSelected(item);
     }
-    private NavigationView.OnNavigationItemSelectedListener naviListener = new NavigationView.OnNavigationItemSelectedListener() {
-        @Override
-        public boolean onNavigationItemSelected(MenuItem menuItem) {
-            //点击NavigationView中定义的menu item时触发反应
-            switch (menuItem.getItemId()) {
-                case R.id.allWB: {
-                    StaticData.getInstance().setWbFlag(0);
-                    swipe.setRefreshing(true);
-                    getWbData(0);
-                    setTitle("所有内容");
-                    main_list.scrollToPosition(0);
-                    main_list.smoothScrollToPosition(0);
-                    break;
-                }
-                case R.id.biatrialWB: {
-                    StaticData.getInstance().setWbFlag(1);
-                    swipe.setRefreshing(true);
-                    getWbData(0);
-                    setTitle("相互关注");
-                    main_list.scrollToPosition(0);
-                    break;
-                }
-                case R.id.originalWB: {
-                    StaticData.getInstance().setWbFlag(2);
-                    swipe.setRefreshing(true);
-                    getWbData(0);
-                    setTitle("原创内容");
-                    main_list.scrollToPosition(0);
-                    main_list.smoothScrollToPosition(0);
-                    break;
-                }
-                case R.id.mentionWB: {
-                    StaticData.getInstance().setWbFlag(3);
-                    swipe.setRefreshing(true);
-                    getWbData(0);
-                    setTitle("提到我的");
-                    main_list.scrollToPosition(0);
-                    break;
-                }
-            }
-            //关闭DrawerLayout回到主界面选中的tab的fragment页
-            dwlayout.closeDrawer(mNavigationView);
-            return false;
-        }
-    };
+
     public void getToken(String code)
     {
         Subscriber<Access_token> mSubscribe;
@@ -242,6 +278,10 @@ public class MainActivity extends AppCompatActivity{
                 swipe.setRefreshing(false);
                 //swipe.setLoading(false);
                 ListAdapter.notifyDataSetChanged();
+                if(max_id==0) {
+                    main_list.scrollToPosition(0);
+                    main_list.smoothScrollToPosition(0);
+                }
             }
 
             @Override
@@ -273,6 +313,7 @@ public class MainActivity extends AppCompatActivity{
                         fdata.setRet_name(wbData.getStatuses().get(i).getRetweeted_statuses().getUser().getName());
                         fdata.setRet_headurl(wbData.getStatuses().get(i).getRetweeted_statuses().getUser().getAvatar_large());
                         fdata.setRet_id(wbData.getStatuses().get(i).getRetweeted_statuses().getId());
+
                         if(wbData.getStatuses().get(i).getRetweeted_statuses().getPic_urls()!=null)
                         {
                                  fdata.setRet_picurls(wbData.getStatuses().get(i).getRetweeted_statuses().getPic_urls());
@@ -330,13 +371,13 @@ public class MainActivity extends AppCompatActivity{
             public void onNext(User user) {
                 if(user.name!=null)
                 {
-                    View view=mNavigationView.inflateHeaderView(R.layout.nv_header);
+            /*        View view=mNavigationView.inflateHeaderView(R.layout.nv_header);
                     CircleImageView head=(CircleImageView)view.findViewById(R.id.imageView2);
 
                     StaticData.getInstance().getLocalUser().setName(user.name);
                     TextView txt=(TextView)view.findViewById(R.id.nameView);
                     Glide.with(MainActivity.this).load(user.getAvatar_large()).into(head);
-                    txt.setText(StaticData.getInstance().getLocalUser().getName());
+                    txt.setText(StaticData.getInstance().getLocalUser().getName());*/
                 }
             }
         };
@@ -395,4 +436,86 @@ public class MainActivity extends AppCompatActivity{
         return mSubscriber;
     }
 
+    @Override
+    public void onClick(View view) {
+
+        Boolean flag=true;
+        TextView txt=(TextView) view.findViewById(R.id.tv_title);
+        if(txt.getText().equals("全部微博"))
+        {
+            StaticData.getInstance().setWbFlag(0);
+            setTitle("所有内容");
+            flag=false;
+        }
+        else if(txt.getText().equals("相互关注"))
+        {
+            StaticData.getInstance().setWbFlag(1);
+            setTitle("相互关注");
+            flag=false;
+        }
+        else if(txt.getText().equals("原创内容"))
+        {
+            StaticData.getInstance().setWbFlag(2);
+            setTitle("原创内容");
+            flag=false;
+        }
+        else if(txt.getText().equals("提到我的"))
+        {
+            StaticData.getInstance().setWbFlag(3);
+            setTitle("提到我的");
+            flag=false;
+        }
+        if(!flag) {
+            swipe.setRefreshing(true);
+            getWbData(0);
+            main_list.scrollToPosition(0);
+            main_list.smoothScrollToPosition(0);
+            resideMenu.closeMenu();
+            return;
+        }
+            if(txt.getText().equals("登录"))
+        {
+            Intent intent=new Intent();
+            intent.setClass(MainActivity.this,LoginActivity.class);
+            resideMenu.closeMenu();
+            startActivityForResult(intent,0);
+        }
+    }
+    @OnClick(R.id.more) //给 button1 设置一个点击事件
+    public void more()
+    {
+        resideMenu.openMenu(ResideMenu.DIRECTION_RIGHT);
+    }
+    @Override
+    public void onRFACItemLabelClick(int i, RFACLabelItem rfacLabelItem) {
+
+    }
+
+    @Override
+    public void onRFACItemIconClick(int i, RFACLabelItem rfacLabelItem) {
+
+        switch(i)
+        {
+            case 0:
+            {
+                Intent intent=new Intent();
+                intent.setClass(this,NewWBActivity.class);
+                startActivity(intent);
+                rfaLayout.collapseContent();
+                break;
+            }
+            case 1:
+            {
+                resideMenu.openMenu(ResideMenu.DIRECTION_RIGHT);
+                rfaLayout.collapseContent();
+                break;
+            }
+            case 2:
+            {
+                resideMenu.openMenu(ResideMenu.DIRECTION_LEFT);
+                rfaLayout.collapseContent();
+                break;
+            }
+        }
+    }
 }

@@ -41,7 +41,7 @@ public class DetialActivity extends AppCompatActivity implements DetialFragment.
         actionBar.setHomeAsUpIndicator(R.mipmap.ic_arrow_back_white_24dp);
         actionBar.setDisplayHomeAsUpEnabled(true);
 
-        setTitle("");
+        setTitle("微博正文");
 
         Intent intent = getIntent();
         getSupportFragmentManager().beginTransaction()
@@ -79,6 +79,47 @@ public class DetialActivity extends AppCompatActivity implements DetialFragment.
                     cm.setPrimaryClip(ClipData.newPlainText("wb",StaticData.getInstance().getData().get(intent.getIntExtra("position", 0)).getText()));
                 }
                 Toast.makeText(this,"复制完成",Toast.LENGTH_SHORT).show();
+                break;
+            }
+            case R.id.send:
+            {
+                Intent intent=getIntent();
+                ClipboardManager cm=(ClipboardManager) getSystemService(this.CLIPBOARD_SERVICE);
+                if(intent.getBooleanExtra("isRet", false)) {
+                    Intent intent1=new Intent();
+                    intent1.putExtra("id",StaticData.getInstance().getData().get(intent.getIntExtra("position", 0)).getRet_id());
+                    intent1.putExtra("sendflag",0);//0为转发
+                    intent1.setClass(this,SendCommentActivity.class);
+                    startActivity(intent1);
+                }
+                else
+                {
+                    Intent intent1=new Intent();
+                    intent1.putExtra("id",StaticData.getInstance().getData().get(intent.getIntExtra("position", 0)).getId());
+                    intent1.putExtra("sendflag",0);//0为转发
+                    intent1.setClass(this,SendCommentActivity.class);
+                    startActivity(intent1);
+                }
+                break;
+            }
+            case R.id.comment:
+            {
+                Intent intent=new Intent();
+                if(intent.getBooleanExtra("isRet", false)) {
+                    Intent intent1 = new Intent();
+                    intent1.putExtra("id", StaticData.getInstance().getData().get(intent.getIntExtra("position", 0)).getRet_id());
+                    intent1.putExtra("sendflag", 1);//1为评论
+                    intent1.setClass(this, SendCommentActivity.class);
+                    startActivity(intent1);
+                }
+                else
+                {
+                    Intent intent1=new Intent();
+                    intent1.putExtra("id",StaticData.getInstance().getData().get(intent.getIntExtra("position", 0)).getId());
+                    intent1.putExtra("sendflag",1);//0为转发
+                    intent1.setClass(this,SendCommentActivity.class);
+                    startActivity(intent1);
+                }
                 break;
             }
         }

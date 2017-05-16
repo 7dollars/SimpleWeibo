@@ -4,7 +4,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.util.LruCache;
 
-import com.wmk.wb.model.entity.RetJson.User;
+import com.wmk.wb.model.entity.retjson.User;
 
 import java.util.ArrayList;
 import java.util.Date;

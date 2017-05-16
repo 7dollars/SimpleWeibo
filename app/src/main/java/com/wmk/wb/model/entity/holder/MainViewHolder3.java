@@ -5,6 +5,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.TextView;
 
+import com.special.ResideMenu.ResideMenu;
 import com.wmk.wb.R;
 import com.wmk.wb.model.entity.DetialsInfo;
 
@@ -28,7 +29,7 @@ public class MainViewHolder3 extends RecyclerView.ViewHolder{
 
     public CardView cv;
     public CardView cv_ret;
-    public MainViewHolder3(View itemView, final Subscriber<DetialsInfo> mSubscriber) {
+    public MainViewHolder3(View itemView, final Subscriber<DetialsInfo> mSubscriber, ResideMenu resideMenu) {
         super(itemView);
         author = (TextView) itemView.findViewById(R.id.txt_author);
         time = (TextView) itemView.findViewById(R.id.txt_time);
@@ -37,6 +38,8 @@ public class MainViewHolder3 extends RecyclerView.ViewHolder{
         pic_view=(RecyclerView)itemView.findViewById(R.id.list_pic);
         cv=(CardView)itemView.findViewById(R.id.main);
         cv_ret=(CardView)itemView.findViewById(R.id.comment);
+      //  resideMenu.removeIgnoredView(pic_view);
+      //  resideMenu.addIgnoredView(pic_view);
 
         cv.setOnClickListener(new View.OnClickListener() {
             @Override

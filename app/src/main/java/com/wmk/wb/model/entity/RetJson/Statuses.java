@@ -1,4 +1,4 @@
-package com.wmk.wb.model.entity.RetJson;
+package com.wmk.wb.model.entity.retjson;
 
 import com.google.gson.annotations.SerializedName;
 
@@ -42,6 +42,8 @@ public class Statuses {
 
 
     public List<String> getPic_urls() {
+        if(pic_urls==null)
+            return null;
         List<String> url=new ArrayList<>();
         for(int i=0;i<pic_urls.size();i++)
         {

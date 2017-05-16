@@ -1,5 +1,7 @@
 package com.wmk.wb.model.entity;
 
+import android.support.v7.widget.RecyclerView;
+
 /**
  * Created by wmk on 2017/4/12.
  */
@@ -32,4 +34,5 @@ public class DetialsInfo {
     public void setHasChild(boolean hasChild) {
         this.hasChild = hasChild;
     }
+
 }
