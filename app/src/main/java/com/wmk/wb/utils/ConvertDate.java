@@ -2,7 +2,7 @@ package com.wmk.wb.utils;
 
 import android.util.Log;
 
-import com.wmk.wb.model.entity.StaticData;
+import com.wmk.wb.model.StaticData;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;

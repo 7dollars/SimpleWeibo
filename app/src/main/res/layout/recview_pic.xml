@@ -11,7 +11,8 @@
         android:layout_width="150dp"
         android:layout_height="150dp"
         android:scaleType="centerCrop"
-        app:srcCompat="@color/rfab__color_text_label_item" />
+        app:srcCompat="@color/rfab__color_text_label_item"
+        android:transitionName="image"/>
 
     <TextView
         android:id="@+id/textView"

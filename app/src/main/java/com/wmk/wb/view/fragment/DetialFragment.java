@@ -14,13 +14,14 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.wmk.wb.R;
-import com.wmk.wb.model.entity.FinalViewData;
-import com.wmk.wb.model.entity.StaticData;
+import com.wmk.wb.model.bean.FinalViewData;
+import com.wmk.wb.model.bean.Pic_List_Info;
+import com.wmk.wb.presenter.DetialFG;
 import com.wmk.wb.presenter.adapter.PicListAdapter;
+import com.wmk.wb.view.Interface.IDetialFG;
 import com.wmk.wb.view.ImageActivity;
 
 import de.hdodenhof.circleimageview.CircleImageView;
-import rx.Subscriber;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -30,7 +31,7 @@ import rx.Subscriber;
  * Use the {@link DetialFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class DetialFragment extends Fragment {
+public class DetialFragment extends Fragment implements IDetialFG{
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
 
@@ -46,6 +47,7 @@ public class DetialFragment extends Fragment {
 
     private long id;
 
+    private DetialFG instance=new DetialFG(this);
     private OnFragmentInteractionListener mListener;
 
     public DetialFragment() {
@@ -81,7 +83,7 @@ public class DetialFragment extends Fragment {
                 content=(TextView)v.findViewById(R.id.txt_content);
                 count=(TextView)v.findViewById(R.id.count);
                 list_pic=(RecyclerView)v.findViewById(R.id.list_pic);
-                setData();
+                instance.setData(getArguments().getInt("position"),getArguments().getBoolean("isRet"),getArguments().getBoolean("hasChild"));
                 return v;
             }
             else if(getArguments().getBoolean("hasChild")){
@@ -94,7 +96,7 @@ public class DetialFragment extends Fragment {
                 list_pic=(RecyclerView)v.findViewById(R.id.list_pic);
                 ret_content=(TextView)v.findViewById(R.id.ret_content);
                 count_ret=(TextView)v.findViewById(R.id.count_ret);
-                setData();
+                instance.setData(getArguments().getInt("position"),getArguments().getBoolean("isRet"),getArguments().getBoolean("hasChild"));
                 return v;
             }
             else{
@@ -105,7 +107,7 @@ public class DetialFragment extends Fragment {
                 content=(TextView)v.findViewById(R.id.txt_content);
                 count=(TextView)v.findViewById(R.id.count);
                 list_pic=(RecyclerView)v.findViewById(R.id.list_pic);
-                setData();
+                instance.setData(getArguments().getInt("position"),getArguments().getBoolean("isRet"),getArguments().getBoolean("hasChild"));
                 return v;
             }
         }
@@ -131,67 +133,55 @@ public class DetialFragment extends Fragment {
         mListener = null;
     }
 
-    public void setData()
-    {
-        int position=getArguments().getInt("position");
-        boolean isRet=getArguments().getBoolean("isRet");
-        boolean hasChild=getArguments().getBoolean("hasChild");
-        FinalViewData fdata=StaticData.getInstance().data.get(position);
+    @Override
+    public void toActivity(Pic_List_Info pic_list_info) {
+        Intent intent=new Intent();
+        intent.putStringArrayListExtra("Largeurl",pic_list_info.getLarg_url());
+        intent.putExtra("position",pic_list_info.getPosition());
+        intent.setClass(getActivity(),ImageActivity.class);
+        startActivity(intent);
+    }
 
-        id=fdata.getId();
-        if(isRet) {
-            author.setText(fdata.getRet_name());
-            content.setText(fdata.getRet_text());
-            count.setText(fdata.getReposts_count_ret() + "转发 | " + fdata.getComments_count_ret() + "回复");
-            time.setText(fdata.getRet_time());
-
-            Glide.with(getActivity()).load(fdata.getRet_headurl()).into(head);
-            if(fdata.getRet_picurls()!=null)
-            {
-                LinearLayoutManager manager = new LinearLayoutManager(list_pic.getContext());
-                manager.setOrientation(LinearLayoutManager.HORIZONTAL);
-                list_pic.setLayoutManager(manager);
-                list_pic.setAdapter(new PicListAdapter(getActivity(), fdata.getRet_picurls(),0,setPicSubscriber()));
-            }
-        }
-        else if(hasChild)
-        {
-            author.setText(fdata.getName());
-            content.setText(fdata.getText());
-            count.setText(fdata.getReposts_count() + "转发 | " + fdata.getComments_count() + "回复");
-            count_ret.setText(fdata.getReposts_count_ret() + "转发 | " + fdata.getComments_count_ret() + "回复");
-            ret_content.setText("@"+fdata.getRet_name()+":"+fdata.getRet_text());
-            time.setText(fdata.getTime());
-
-
+    @Override
+    public void updateData(boolean flag,String author, String content, String count, String time) {
+        this.author.setText(author);
+        this.content.setText(content);
+        this.count.setText(count);
+        this.time.setText(time);
+    }
+    @Override
+    public void updateData(String author, String content, String count, String count_ret, String ret_content, String time) {
+        this.author.setText(author);
+        this.content.setText(content);
+        this.count.setText(count);
+        this.time.setText(time);
+        this.count_ret.setText(count_ret);
+        this.ret_content.setText(ret_content);
+    }
+    @Override
+    public void setPic(boolean flag,FinalViewData fdata) {
+        if(flag) {
             Glide.with(getActivity()).load(fdata.getHeadurl()).into(head);
-            if(fdata.getRet_picurls()!=null)
-            {
+            if (fdata.getRet_picurls() != null) {
                 LinearLayoutManager manager = new LinearLayoutManager(list_pic.getContext());
                 manager.setOrientation(LinearLayoutManager.HORIZONTAL);
                 list_pic.setLayoutManager(manager);
-                list_pic.setAdapter(new PicListAdapter(getActivity(), fdata.getRet_picurls(),0,setPicSubscriber()));
+                list_pic.setAdapter(new PicListAdapter(getActivity(), fdata.getPicurls(), 0, instance.getPicSubscriber()));
             }
         }
         else
         {
-            author.setText(fdata.getName());
-            content.setText(fdata.getText());
-            count.setText(fdata.getReposts_count() + "转发 | " + fdata.getComments_count() + "回复");
-            time.setText(fdata.getTime());
-
-
-            Glide.with(getActivity()).load(fdata.getHeadurl()).into(head);
-            if(fdata.getPicurls()!=null)
-            {
+            Glide.with(getActivity()).load(fdata.getRet_headurl()).into(head);
+            if (fdata.getRet_picurls() != null) {
                 LinearLayoutManager manager = new LinearLayoutManager(list_pic.getContext());
                 manager.setOrientation(LinearLayoutManager.HORIZONTAL);
                 list_pic.setLayoutManager(manager);
-                list_pic.setAdapter(new PicListAdapter(getActivity(), fdata.getPicurls(),0,setPicSubscriber()));
+                list_pic.setAdapter(new PicListAdapter(getActivity(), fdata.getRet_picurls(), 0, instance.getPicSubscriber()));
             }
         }
-
     }
+
+
     /**
      * This interface must be implemented by activities that contain this
      * fragment to allow an interaction in this fragment to be communicated
@@ -205,30 +195,6 @@ public class DetialFragment extends Fragment {
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
-    }
-    public Subscriber<String> setPicSubscriber()
-    {
-        final Subscriber<String> mSubscriber=new Subscriber<String>() {
-            @Override
-            public void onCompleted() {
-
-            }
-
-            @Override
-            public void onError(Throwable e) {
-
-            }
-
-            @Override
-            public void onNext(String s) {
-                Intent intent=new Intent();
-                intent.putExtra("Largeurl",s);
-                intent.setClass(getActivity(),ImageActivity.class);
-                startActivity(intent);
-                getActivity().overridePendingTransition(android.R.anim.fade_in,android.R.anim.fade_out);
-            }
-        };
-        return mSubscriber;
     }
 
 }

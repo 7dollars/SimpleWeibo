@@ -10,10 +10,11 @@ import android.view.ViewGroup;
 import com.bumptech.glide.Glide;
 import com.special.ResideMenu.ResideMenu;
 import com.wmk.wb.R;
-import com.wmk.wb.model.entity.DetialsInfo;
-import com.wmk.wb.model.entity.FinalViewData;
-import com.wmk.wb.model.entity.holder.MainViewHolder3;
-import com.wmk.wb.model.entity.StaticData;
+import com.wmk.wb.model.bean.DetialsInfo;
+import com.wmk.wb.model.bean.FinalViewData;
+import com.wmk.wb.view.holder.MainViewHolder3;
+import com.wmk.wb.model.StaticData;
+import com.wmk.wb.model.bean.Pic_List_Info;
 
 
 import rx.Subscriber;
@@ -26,10 +27,10 @@ public class MainListAdapter extends RecyclerView.Adapter  {
     private Context mContext;
     private SwipeRefreshLayout mswipe;
     private  Subscriber<DetialsInfo> mSubscriber;
-    private  Subscriber<String> mSubscriber2;
+    private  Subscriber<Pic_List_Info> mSubscriber2;
     private  ResideMenu resideMenu;
 
-    public MainListAdapter(Context context, SwipeRefreshLayout swipe, Subscriber<DetialsInfo> s, Subscriber<String> s2, ResideMenu resideMenu) {
+    public MainListAdapter(Context context, SwipeRefreshLayout swipe, Subscriber<DetialsInfo> s, Subscriber<Pic_List_Info> s2, ResideMenu resideMenu) {
         super();
         mContext = context;
         mswipe = swipe;
@@ -45,8 +46,8 @@ public class MainListAdapter extends RecyclerView.Adapter  {
 
     @Override
     public int getItemCount() {
-        if (StaticData.getInstance().data != null)
-            return StaticData.getInstance().data.size();
+        if (StaticData.getInstance().getData() != null)
+            return StaticData.getInstance().getData().size();
         else
             return 0;
     }
@@ -107,7 +108,6 @@ public class MainListAdapter extends RecyclerView.Adapter  {
                 holder3.reposts_comments_ret.setText(data.getReposts_count_ret()+"转发 | "+data.getComments_count_ret()+"回复");
 
                 Glide.with(mContext).load(data.getHeadurl()).into(holder3.head);
-
 
                 manager = new LinearLayoutManager(holder3.pic_view.getContext());
                 manager.setOrientation(LinearLayoutManager.HORIZONTAL);

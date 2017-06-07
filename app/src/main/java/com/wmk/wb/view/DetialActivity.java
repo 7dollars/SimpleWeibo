@@ -15,7 +15,8 @@ import android.widget.Toast;
 
 import com.wmk.wb.R;
 
-import com.wmk.wb.model.entity.StaticData;
+import com.wmk.wb.presenter.DetialAC;
+import com.wmk.wb.view.Interface.IDetial;
 import com.wmk.wb.view.fragment.CommentsFragment;
 import com.wmk.wb.view.fragment.DetialFragment;
 
@@ -23,12 +24,13 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 
 
-public class DetialActivity extends AppCompatActivity implements DetialFragment.OnFragmentInteractionListener {
+public class DetialActivity extends AppCompatActivity implements DetialFragment.OnFragmentInteractionListener,IDetial {
 
     @BindView(R.id.tool_bar)
     Toolbar mToolbar;
 
     private long id;
+    private DetialAC instance;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,6 +42,7 @@ public class DetialActivity extends AppCompatActivity implements DetialFragment.
         ActionBar actionBar = getSupportActionBar();
         actionBar.setHomeAsUpIndicator(R.mipmap.ic_arrow_back_white_24dp);
         actionBar.setDisplayHomeAsUpEnabled(true);
+        instance=new DetialAC();
 
         setTitle("微博正文");
 
@@ -48,10 +51,10 @@ public class DetialActivity extends AppCompatActivity implements DetialFragment.
                 .replace(R.id.detial_frag1, DetialFragment.newInstance(intent.getIntExtra("position", 0), intent.getBooleanExtra("isRet", false), intent.getBooleanExtra("hasChild", false)))
                 .commit();
         if (intent.getBooleanExtra("isRet", false)) {
-            id=StaticData.getInstance().data.get(intent.getIntExtra("position", 0)).getRet_id();
+            id=instance.getData(intent.getIntExtra("position", 0)).getRet_id();
         }
         else {
-            id=StaticData.getInstance().data.get(intent.getIntExtra("position", 0)).getId();
+            id=instance.getData(intent.getIntExtra("position", 0)).getId();
         }
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.detial_list1, CommentsFragment.newInstance(0, id))
@@ -73,53 +76,30 @@ public class DetialActivity extends AppCompatActivity implements DetialFragment.
                 Intent intent=getIntent();
                 ClipboardManager cm=(ClipboardManager) getSystemService(this.CLIPBOARD_SERVICE);
                 if(intent.getBooleanExtra("isRet", false)) {
-                    cm.setPrimaryClip(ClipData.newPlainText("wb",StaticData.getInstance().getData().get(intent.getIntExtra("position", 0)).getRet_text()));
+                    cm.setPrimaryClip(ClipData.newPlainText("wb",instance.getData(intent.getIntExtra("position", 0)).getRet_text()));
                 }
                 else {
-                    cm.setPrimaryClip(ClipData.newPlainText("wb",StaticData.getInstance().getData().get(intent.getIntExtra("position", 0)).getText()));
+                    cm.setPrimaryClip(ClipData.newPlainText("wb",instance.getData(intent.getIntExtra("position", 0)).getText()));
                 }
                 Toast.makeText(this,"复制完成",Toast.LENGTH_SHORT).show();
                 break;
             }
             case R.id.send:
             {
-                Intent intent=getIntent();
-                ClipboardManager cm=(ClipboardManager) getSystemService(this.CLIPBOARD_SERVICE);
-                if(intent.getBooleanExtra("isRet", false)) {
-                    Intent intent1=new Intent();
-                    intent1.putExtra("id",StaticData.getInstance().getData().get(intent.getIntExtra("position", 0)).getRet_id());
-                    intent1.putExtra("sendflag",0);//0为转发
-                    intent1.setClass(this,SendCommentActivity.class);
-                    startActivity(intent1);
-                }
-                else
-                {
-                    Intent intent1=new Intent();
-                    intent1.putExtra("id",StaticData.getInstance().getData().get(intent.getIntExtra("position", 0)).getId());
-                    intent1.putExtra("sendflag",0);//0为转发
-                    intent1.setClass(this,SendCommentActivity.class);
-                    startActivity(intent1);
-                }
+                Intent intent1=new Intent();
+                intent1.putExtra("id",id);
+                intent1.putExtra("sendflag",0);//0为转发
+                intent1.setClass(this,SendCommentActivity.class);
+                startActivity(intent1);
                 break;
             }
             case R.id.comment:
             {
-                Intent intent=new Intent();
-                if(intent.getBooleanExtra("isRet", false)) {
-                    Intent intent1 = new Intent();
-                    intent1.putExtra("id", StaticData.getInstance().getData().get(intent.getIntExtra("position", 0)).getRet_id());
-                    intent1.putExtra("sendflag", 1);//1为评论
-                    intent1.setClass(this, SendCommentActivity.class);
-                    startActivity(intent1);
-                }
-                else
-                {
-                    Intent intent1=new Intent();
-                    intent1.putExtra("id",StaticData.getInstance().getData().get(intent.getIntExtra("position", 0)).getId());
-                    intent1.putExtra("sendflag",1);//0为转发
-                    intent1.setClass(this,SendCommentActivity.class);
-                    startActivity(intent1);
-                }
+                Intent intent1=new Intent();
+                intent1.putExtra("id",id);
+                intent1.putExtra("sendflag",1);//0为转发
+                intent1.setClass(this,SendCommentActivity.class);
+                startActivity(intent1);
                 break;
             }
         }
@@ -131,4 +111,8 @@ public class DetialActivity extends AppCompatActivity implements DetialFragment.
 
     }
 
+    @Override
+    public void showToast(String text) {
+
+    }
 }

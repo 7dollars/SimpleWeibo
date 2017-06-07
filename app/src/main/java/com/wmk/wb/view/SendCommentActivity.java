@@ -1,35 +1,24 @@
 package com.wmk.wb.view;
 
-import android.content.Context;
 import android.content.Intent;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
 import com.wmk.wb.R;
-import com.wmk.wb.model.entity.retjson.Statuses;
-import com.wmk.wb.presenter.DataManager;
-
-import java.net.URLEncoder;
+import com.wmk.wb.presenter.SendCommentAC;
+import com.wmk.wb.view.Interface.ISendComment;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import okhttp3.ResponseBody;
-import rx.Subscriber;
 
-/////////////////////////////////////////
-//这部分暂时没用。。。
-//发送评论的时候，总返回HTTP400，说参数不全
-//手动提交POST，也返回参数不全
-//无解。。。就先把评论功能屏蔽吧
-/////////////////////////////////////////
-public class SendCommentActivity extends AppCompatActivity {
+
+public class SendCommentActivity extends AppCompatActivity implements ISendComment {
 
     @BindView(R.id.tool_bar)
     Toolbar mToolbar;
@@ -44,6 +33,8 @@ public class SendCommentActivity extends AppCompatActivity {
     private long id=0;
 
     private int sendflag=0;
+    private long commentid=0;
+    SendCommentAC instance;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -57,69 +48,28 @@ public class SendCommentActivity extends AppCompatActivity {
         Intent intent=getIntent();
         id=intent.getLongExtra("id",0);
         sendflag=intent.getIntExtra("sendflag",0);
-        if(sendflag==1)
-            setTitle("评论");
-        else
+        commentid=intent.getLongExtra("commentid",0);
+        instance=new SendCommentAC(this);
+
+        if(sendflag==0)
             setTitle("转发");
+        else
+            setTitle("评论");
     }
     @OnClick(R.id.send ) //给 button1 设置一个点击事件
     public void send()
     {
-        if(send.getText()!=null)
+        if(editText.getText()!=null)
         {
-            final int temp=sendflag;
-            Subscriber<ResponseBody> mSubscriber=new Subscriber<ResponseBody>() {
-                @Override
-                public void onCompleted() {
-                    switch(temp)
-                    {
-                        case 0:
-                        {
-                            Toast.makeText(SendCommentActivity.this,"转发成功",Toast.LENGTH_SHORT).show();
-                            break;
-                        }
-                        case 1:
-                        {
-                            Toast.makeText(SendCommentActivity.this,"评论成功",Toast.LENGTH_SHORT).show();
-                            break;
-                        }
-                    }
-                    finish();
-                }
-
-                @Override
-                public void onError(Throwable e) {
-                    switch(temp)
-                    {
-                        case 0:
-                        {
-                            Toast.makeText(SendCommentActivity.this,"转发失败，请稍后重试",Toast.LENGTH_SHORT).show();
-                            break;
-                        }
-                        case 1:
-                        {
-                            Toast.makeText(SendCommentActivity.this,"评论失败，请稍后重试",Toast.LENGTH_SHORT).show();
-                            break;
-                        }
-                    }
-                    finish();
-                }
-
-                @Override
-                public void onNext(ResponseBody s) {
-                }
-            };
-
-            switch(sendflag) {
-                case 0: {
-                    DataManager.getInstance().relay(mSubscriber, id, editText.getText().toString());
-                    //DataManager.getInstance().relay(mSubscriber, id, 0, URLEncoder.encode(editText.getText().toString(), "GBK"));
-                    break;
-                }
-                case 1:{
-                    DataManager.getInstance().setComments(mSubscriber,id,editText.getText().toString());
-                }
-            }
+            instance.send(sendflag,id,commentid,editText.getText().toString());
         }
+    }
+
+    @Override
+    public void showToast(String text, boolean isExit) {
+        Toast.makeText(getApplicationContext(),text,Toast.LENGTH_SHORT).show();
+
+        if(isExit)
+            finish();
     }
 }

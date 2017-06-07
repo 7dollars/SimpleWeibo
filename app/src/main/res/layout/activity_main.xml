@@ -3,28 +3,31 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?android:attr/detailsElementBackground"
     tools:layout_editor_absoluteX="8dp">
 
     <android.support.design.widget.AppBarLayout
         android:id="@+id/app_bar_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:theme="@style/ThemeOverlay.AppCompat.Dark">
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+        >
 
         <android.support.v7.widget.Toolbar
             android:id="@+id/tool_bar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorPrimary"
-            app:layout_scrollFlags="scroll|enterAlways">
-        <Button
-            android:id="@+id/more"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:layout_gravity="right"
-            android:layout_marginRight="20dp"
-            android:background="@mipmap/ic_more_vert_white_24dp" />
+            android:background="@color/colorPrimary"
+            app:layout_scrollFlags="scroll|enterAlways"
+
+            >
+
+            <Button
+                android:id="@+id/more"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_gravity="right"
+                android:layout_marginRight="20dp"
+                android:background="@mipmap/ic_more_vert_white_24dp" />
         </android.support.v7.widget.Toolbar>
 
     </android.support.design.widget.AppBarLayout>
@@ -49,25 +52,24 @@
         rfal:rfal_frame_color="#ffffff"
         rfal:rfal_frame_alpha="0"
         >
-        <com.wangjie.rapidfloatingactionbutton.RapidFloatingActionButton
-            xmlns:rfab="http://schemas.android.com/apk/res-auto"
+
+        <com.wangjie.rapidfloatingactionbutton.RapidFloatingActionButton xmlns:rfab="http://schemas.android.com/apk/res-auto"
             android:id="@+id/activity_main_rfab"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
             android:layout_alignParentBottom="true"
-            android:layout_marginRight="15dp"
+            android:layout_alignParentRight="true"
             android:layout_marginBottom="15dp"
+            android:layout_marginRight="15dp"
             android:padding="8dp"
-            rfab:rfab_size="normal"
-            rfab:rfab_drawable="@drawable/rfab__drawable_rfab_default"
-            rfab:rfab_color_normal="?attr/colorPrimary"
+            rfab:rfab_color_normal="@color/colorPrimary"
             rfab:rfab_color_pressed="#263238"
-            rfab:rfab_shadow_radius="7dp"
+            rfab:rfab_drawable="@drawable/rfab__drawable_rfab_default"
             rfab:rfab_shadow_color="#999999"
             rfab:rfab_shadow_dx="0dp"
             rfab:rfab_shadow_dy="5dp"
-            />
+            rfab:rfab_shadow_radius="7dp"
+            rfab:rfab_size="normal" />
     </com.wangjie.rapidfloatingactionbutton.RapidFloatingActionLayout>
 </android.support.design.widget.CoordinatorLayout>
 

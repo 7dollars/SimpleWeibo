@@ -1,6 +1,5 @@
 package com.wmk.wb.view;
 
-import android.content.Intent;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -10,15 +9,14 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.wmk.wb.R;
-import com.wmk.wb.presenter.DataManager;
+import com.wmk.wb.presenter.NewwbAC;
+import com.wmk.wb.view.Interface.INewWB;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import okhttp3.ResponseBody;
-import rx.Subscriber;
 
-public class NewWBActivity extends AppCompatActivity {
+public class NewWBActivity extends AppCompatActivity implements INewWB {
 
     @BindView(R.id.tool_bar)
     Toolbar mToolbar;
@@ -28,6 +26,8 @@ public class NewWBActivity extends AppCompatActivity {
 
     @BindView(R.id.editText)
     EditText editText;
+
+    NewwbAC instance;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -39,35 +39,23 @@ public class NewWBActivity extends AppCompatActivity {
         ActionBar actionBar = getSupportActionBar();
         actionBar.setHomeAsUpIndicator(R.mipmap.ic_arrow_back_white_24dp);
         actionBar.setDisplayHomeAsUpEnabled(true);
-       // Intent intent=getIntent();
 
+        instance=new NewwbAC(this);
     }
 
     @OnClick(R.id.send )
     public void send()
     {
-        if(send.getText()!=null)
+        if(editText.getText()!=null)
         {
-            Subscriber<ResponseBody> mSubscriber=new Subscriber<ResponseBody>() {
-                @Override
-                public void onCompleted() {
-                    Toast.makeText(NewWBActivity.this,"发布成功",Toast.LENGTH_SHORT).show();
-                    finish();
-                }
-
-                @Override
-                public void onError(Throwable e) {
-                    Toast.makeText(NewWBActivity.this,"发布失败，请稍后重试",Toast.LENGTH_SHORT).show();
-                }
-
-                @Override
-                public void onNext(ResponseBody s) {
-                }
-            };
-            DataManager.getInstance().createNew(mSubscriber, editText.getText().toString());
-            //DataManager.getInstance().relay(mSubscriber, id, 0, URLEncoder.encode(editText.getText().toString(), "GBK"));
-
-
+            instance.send(editText.getText().toString());
         }
+    }
+
+    @Override
+    public void showToast(String text, boolean isExit) {
+        Toast.makeText(getApplicationContext(),text,Toast.LENGTH_SHORT).show();
+        if(isExit)
+            finish();
     }
 }

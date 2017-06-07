@@ -1,9 +1,8 @@
 package com.wmk.wb.view;
 
+import android.app.ActivityOptions;
 import android.content.Intent;
 import android.graphics.Color;
-import android.support.design.widget.NavigationView;
-import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -12,6 +11,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -19,7 +19,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 
-import com.bumptech.glide.Glide;
 import com.special.ResideMenu.ResideMenu;
 import com.special.ResideMenu.ResideMenuItem;
 import com.wangjie.androidbucket.utils.ABTextUtil;
@@ -29,22 +28,16 @@ import com.wangjie.rapidfloatingactionbutton.RapidFloatingActionHelper;
 import com.wangjie.rapidfloatingactionbutton.RapidFloatingActionLayout;
 import com.wangjie.rapidfloatingactionbutton.contentimpl.labellist.RFACLabelItem;
 import com.wangjie.rapidfloatingactionbutton.contentimpl.labellist.RapidFloatingActionContentLabelList;
-import com.wangjie.rapidfloatingactionbutton.listener.OnRapidFloatingActionListener;
 import com.wmk.wb.R;
-import com.wmk.wb.presenter.DataManager;
-import com.wmk.wb.model.entity.DetialsInfo;
-import com.wmk.wb.model.entity.retjson.Access_token;
-import com.wmk.wb.model.entity.FinalViewData;
-import com.wmk.wb.model.entity.retjson.User;
-import com.wmk.wb.model.entity.StaticData;
-import com.wmk.wb.model.entity.retjson.WbData;
-import com.wmk.wb.presenter.EndlessRecyclerOnScrollListener;
-import com.wmk.wb.presenter.IMainAC;
+import com.wmk.wb.model.bean.Pic_List_Info;
+import com.wmk.wb.model.bean.DetialsInfo;
+import com.wmk.wb.model.StaticData;
+import com.wmk.wb.utils.EndlessRecyclerOnScrollListener;
 import com.wmk.wb.presenter.MainAC;
 import com.wmk.wb.presenter.adapter.MainListAdapter;
 
-import com.wmk.wb.utils.ConvertDate;
 import com.wmk.wb.utils.SpUtil;
+import com.wmk.wb.view.Interface.IMain;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,10 +45,10 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import de.hdodenhof.circleimageview.CircleImageView;
+
 import rx.Subscriber;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener, RapidFloatingActionContentLabelList.OnRapidFloatingActionContentLabelListListener {
+public class MainActivity extends AppCompatActivity implements View.OnClickListener, RapidFloatingActionContentLabelList.OnRapidFloatingActionContentLabelListListener ,ResideMenu.OnMenuListener,IMain {
 
     @BindView(R.id.swipe)
     SwipeRefreshLayout swipe;
@@ -68,13 +61,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     MainListAdapter ListAdapter;
 
- //   @BindView(R.id.navigation_view)
- //   NavigationView mNavigationView;
-
- //   @BindView(R.id.drawer_layout)
-  //  DrawerLayout dwlayout;
-
-
     @BindView(R.id.activity_main_rfal)
     RapidFloatingActionLayout rfaLayout;
     @BindView(R.id.activity_main_rfab)
@@ -82,20 +68,59 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private RapidFloatingActionHelper rfabHelper;
     private ResideMenu resideMenu;
+    private long exitTime = 0;
+
+    MainAC instance;
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if(resultCode==1)
         {
-            getToken(data.getExtras().getString("CODE"));
+            instance.getToken(data.getExtras().getString("CODE"),MainActivity.this);
             Log.e(data.getExtras().getString("CODE"),"123123");
         }
 
     }
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if(keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_DOWN)
+        {
+            if(resideMenu.isOpened())
+            {
+                resideMenu.closeMenu();
+                return  true;
+            }
+            if((System.currentTimeMillis()-exitTime) > 2000)  //System.currentTimeMillis()无论何时调用，肯定大于2000
+            {
+                Toast.makeText(getApplicationContext(), "再按一次退出程序",Toast.LENGTH_SHORT).show();
+                exitTime = System.currentTimeMillis();
+            }
+            else
+            {
+                finish();
+                System.exit(0);
+            }
 
+            return true;
+        }
+        else if(keyCode==KeyEvent.KEYCODE_MENU&& event.getAction() == KeyEvent.ACTION_DOWN)
+        {
+            if(resideMenu.isOpened())
+                resideMenu.closeMenu();
+            else
+                resideMenu.openMenu(ResideMenu.DIRECTION_LEFT);
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+///////////////////////////////////////////////
+    //toolbar菜单
+///////////////////////////////////////////////
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
 
@@ -104,6 +129,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         ActionBar actionBar = getSupportActionBar();
         actionBar.setHomeAsUpIndicator(R.mipmap.ic_menu_white_24dp);
         actionBar.setDisplayHomeAsUpEnabled(true);
+
+        instance=new MainAC(this);
 
         RapidFloatingActionContentLabelList rfaContent = new RapidFloatingActionContentLabelList(this);
         rfaContent.setOnRapidFloatingActionContentLabelListListener(this);
@@ -147,8 +174,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
         resideMenu = new ResideMenu(this);
-        resideMenu.setBackground(R.color.colorPrimary);
+        resideMenu.setMenuListener(this);
         resideMenu.attachToActivity(this);
+        resideMenu.setShadowVisible(false);
         resideMenu.setSwipeDirectionDisable(ResideMenu.DIRECTION_RIGHT);
         resideMenu.setSwipeDirectionDisable(ResideMenu.DIRECTION_LEFT);
         String titles[] = { "全部微博", "相互关注", "原创内容", "提到我的" };
@@ -159,7 +187,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             resideMenu.addMenuItem(item,  ResideMenu.DIRECTION_LEFT); // or  ResideMenu.DIRECTION_RIGHT
         }
         String titles1[] = { "登录"};
-        int icon1[] = { R.mipmap.ic_home_white_24dp};
+        int icon1[] = { R.mipmap.ic_person_white_24dp};
         for (int i = 0; i < titles1.length; i++){
             ResideMenuItem item = new ResideMenuItem(this, icon1[i], titles1[i]);
             item.setOnClickListener(this);
@@ -175,15 +203,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         });
 
-        int maxMemory = (int) (Runtime.getRuntime().maxMemory() / 1024);
-        StaticData.getInstance().setCacheSize(maxMemory/8);
-
-        Subscriber<DetialsInfo> mSubscriber=setDetialsSubscriber();
-        Subscriber<String> mSubscriber2=setPicSubscriber();
+        Subscriber<DetialsInfo> mSubscriber=instance.getDetialsSubscriber();
+        Subscriber<Pic_List_Info> mSubscriber2=instance.getPicSubscriber();
         ListAdapter=new MainListAdapter(MainActivity.this,swipe,mSubscriber,mSubscriber2,resideMenu);
-        StaticData staticData=StaticData.getInstance();
-        staticData.setmContext(MainActivity.this);
-        getUserInfo();
+
+        StaticData.getInstance().setmContext(MainActivity.this);
 
         LinearLayoutManager manager = new LinearLayoutManager(main_list.getContext());
         manager.setOrientation(LinearLayoutManager.VERTICAL);
@@ -195,12 +219,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             public void onLoadMore(int currentPage) {
                 if(StaticData.getInstance().getData().size()>0)
                 {
-                    getWbData(StaticData.getInstance().getData().get(StaticData.getInstance().getData().size()-1).getId());
+                    instance.getWbData(StaticData.getInstance().getData().get(StaticData.getInstance().getData().size()-1).getId());
                 }
             }
         };//上拉加载
         main_list.addOnScrollListener(end);
-      //  mNavigationView.setNavigationItemSelectedListener(naviListener);
         swipe.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
@@ -210,16 +233,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     startActivityForResult(intent, 0);
                 }
                 else {
-                    getWbData(0);
+                    instance.getWbData(0);
                 }
             }
         });
 
         swipe.setRefreshing(true);
-        getWbData(0);
+        instance.getWbData(0);
 
     }
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         //getMenuInflater().inflate(R.menu.main_menu, menu);
@@ -244,253 +266,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
         return super.onOptionsItemSelected(item);
     }
-
-    public void getToken(String code)
-    {
-        Subscriber<Access_token> mSubscribe;
-        mSubscribe=new Subscriber<Access_token>() {
-            @Override
-            public void onCompleted() {
-                Toast.makeText(MainActivity.this,"登陆成功",Toast.LENGTH_SHORT).show();
-            }
-
-            @Override
-            public void onError(Throwable e) {
-                Toast.makeText(MainActivity.this,"登陆失败",Toast.LENGTH_SHORT).show();
-            }
-
-            @Override
-            public void onNext(Access_token access_token) {
-                SpUtil.putString(MainActivity.this,"token",access_token.getAccess_token());
-                SpUtil.putString(MainActivity.this,"uid",access_token.getUid());
-            }
-        };
-        DataManager.getInstance().getAccess(mSubscribe,code);
-    }
-    public void getWbData(final long max_id)//获取微博数据，max_id:数据起始id，0为从最新开始获取
-    {
-        Subscriber<WbData> mSubscribe;
-        final IMainAC mainAC=new MainAC();
-        mSubscribe=new Subscriber<WbData>() {
-
-            @Override
-            public void onCompleted() {
-                swipe.setRefreshing(false);
-                //swipe.setLoading(false);
-                ListAdapter.notifyDataSetChanged();
-                if(max_id==0) {
-                    main_list.scrollToPosition(0);
-                    main_list.smoothScrollToPosition(0);
-                }
-            }
-
-            @Override
-            public void onError(Throwable e) {
-
-            }
-
-            @Override
-            public void onNext(WbData wbData) {
-                FinalViewData fdata;
-                List<FinalViewData> data=new ArrayList<>();
-                for (int i = 0; i < wbData.getStatuses().size(); i++) {
-                    if(i==0&&max_id!=0)
-                        i=1;
-                    fdata = new FinalViewData();
-                    fdata.setText(wbData.getStatuses().get(i).getText());
-                    fdata.setHeadurl(wbData.getStatuses().get(i).getUser().getAvatar_large());
-                    fdata.setName(wbData.getStatuses().get(i).getUser().getName());
-                    fdata.setId(wbData.getStatuses().get(i).getId());
-                    fdata.setTime(ConvertDate.calcDate(wbData.getStatuses().get(i).getCreated_at()));
-                    fdata.setReposts_count(wbData.getStatuses().get(i).getReposts_count());
-                    fdata.setComments_count(wbData.getStatuses().get(i).getComments_count());
-                    if(wbData.getStatuses().get(i).getRetweeted_statuses()!=null)
-                    {
-                        fdata.setRet_time(ConvertDate.calcDate(wbData.getStatuses().get(i).getRetweeted_statuses().getCreated_at()));
-                        fdata.setRet_text(wbData.getStatuses().get(i).getRetweeted_statuses().getText());
-                        fdata.setReposts_count_ret(wbData.getStatuses().get(i).getRetweeted_statuses().getReposts_count());
-                        fdata.setComments_count_ret(wbData.getStatuses().get(i).getRetweeted_statuses().getComments_count());
-                        fdata.setRet_name(wbData.getStatuses().get(i).getRetweeted_statuses().getUser().getName());
-                        fdata.setRet_headurl(wbData.getStatuses().get(i).getRetweeted_statuses().getUser().getAvatar_large());
-                        fdata.setRet_id(wbData.getStatuses().get(i).getRetweeted_statuses().getId());
-
-                        if(wbData.getStatuses().get(i).getRetweeted_statuses().getPic_urls()!=null)
-                        {
-                                 fdata.setRet_picurls(wbData.getStatuses().get(i).getRetweeted_statuses().getPic_urls());
-                        }
-                        if(wbData.getStatuses().get(i).getRetweeted_statuses().getPic_ids()!=null)
-                        {
-                            List<String> array=new ArrayList<>();
-                            for(String ids:wbData.getStatuses().get(i).getRetweeted_statuses().getPic_ids()){
-                                ids="http://ww3.sinaimg.cn/thumbnail/"+ids+".jpg";
-                                array.add(ids);
-                            }
-                            fdata.setRet_picurls(array);
-                        }
-                    }
-                    if(wbData.getStatuses().get(i).getPic_urls()!=null)
-                    {
-                        fdata.setPicurls(wbData.getStatuses().get(i).getPic_urls());
-                    }
-                    if(wbData.getStatuses().get(i).getPic_ids()!=null)
-                    {
-                        List<String> array=new ArrayList<>();
-                        for(String ids:wbData.getStatuses().get(i).getPic_ids()){
-                            ids="http://ww3.sinaimg.cn/thumbnail/"+ids+".jpg";
-                            array.add(ids);
-                        }
-                        fdata.setPicurls(array);
-                    }
-                    if(max_id!=0)
-                        mainAC.addDataToMainList(fdata);
-                    else
-                        data.add(fdata);
-                }
-                if(max_id==0)
-                    mainAC.refreshDataToMainList(data);
-
-            }
-        };
-        mainAC.getDataDataManager().getWbData(mSubscribe, max_id);
-    }
-    public void getUserInfo()
-    {
-        Subscriber<User> mSubscribe;
-        mSubscribe=new Subscriber<User>() {
-            @Override
-            public void onCompleted() {
-
-            }
-
-            @Override
-            public void onError(Throwable e) {
-
-            }
-
-            @Override
-            public void onNext(User user) {
-                if(user.name!=null)
-                {
-            /*        View view=mNavigationView.inflateHeaderView(R.layout.nv_header);
-                    CircleImageView head=(CircleImageView)view.findViewById(R.id.imageView2);
-
-                    StaticData.getInstance().getLocalUser().setName(user.name);
-                    TextView txt=(TextView)view.findViewById(R.id.nameView);
-                    Glide.with(MainActivity.this).load(user.getAvatar_large()).into(head);
-                    txt.setText(StaticData.getInstance().getLocalUser().getName());*/
-                }
-            }
-        };
-        DataManager.getInstance().getLocalUser(mSubscribe);
-    }
-
-    public Subscriber<DetialsInfo> setDetialsSubscriber()
-    {
-        final Subscriber<DetialsInfo> mSubscriber=new Subscriber<DetialsInfo>() {
-            @Override
-            public void onCompleted() {
-                unsubscribe();
-            }
-
-            @Override
-            public void onError(Throwable e) {
-
-            }
-
-            @Override
-            public void onNext(DetialsInfo detialsInfo) {
-
-                Intent intent=new Intent();
-                intent.putExtra("isRet",detialsInfo.isRet());
-                intent.putExtra("position",detialsInfo.getPosition());
-                intent.putExtra("hasChild",detialsInfo.isHasChild());
-                intent.setClass(MainActivity.this,DetialActivity.class);
-                startActivity(intent);
-
-            }
-        };
-        return mSubscriber;
-    }
-    public Subscriber<String> setPicSubscriber()
-    {
-        final Subscriber<String> mSubscriber=new Subscriber<String>() {
-            @Override
-            public void onCompleted() {
-
-            }
-
-            @Override
-            public void onError(Throwable e) {
-
-            }
-
-            @Override
-            public void onNext(String s) {
-                Intent intent=new Intent();
-                intent.putExtra("Largeurl",s);
-                intent.setClass(MainActivity.this,ImageActivity.class);
-                startActivity(intent);
-                overridePendingTransition(android.R.anim.fade_in,android.R.anim.fade_out);
-            }
-        };
-        return mSubscriber;
-    }
-
-    @Override
-    public void onClick(View view) {
-
-        Boolean flag=true;
-        TextView txt=(TextView) view.findViewById(R.id.tv_title);
-        if(txt.getText().equals("全部微博"))
-        {
-            StaticData.getInstance().setWbFlag(0);
-            setTitle("所有内容");
-            flag=false;
-        }
-        else if(txt.getText().equals("相互关注"))
-        {
-            StaticData.getInstance().setWbFlag(1);
-            setTitle("相互关注");
-            flag=false;
-        }
-        else if(txt.getText().equals("原创内容"))
-        {
-            StaticData.getInstance().setWbFlag(2);
-            setTitle("原创内容");
-            flag=false;
-        }
-        else if(txt.getText().equals("提到我的"))
-        {
-            StaticData.getInstance().setWbFlag(3);
-            setTitle("提到我的");
-            flag=false;
-        }
-        if(!flag) {
-            swipe.setRefreshing(true);
-            getWbData(0);
-            main_list.scrollToPosition(0);
-            main_list.smoothScrollToPosition(0);
-            resideMenu.closeMenu();
-            return;
-        }
-            if(txt.getText().equals("登录"))
-        {
-            Intent intent=new Intent();
-            intent.setClass(MainActivity.this,LoginActivity.class);
-            resideMenu.closeMenu();
-            startActivityForResult(intent,0);
-        }
-    }
     @OnClick(R.id.more) //给 button1 设置一个点击事件
     public void more()
     {
         resideMenu.openMenu(ResideMenu.DIRECTION_RIGHT);
     }
+
+///////////////////////////////////////////////
+    //悬浮按钮
+///////////////////////////////////////////////
     @Override
     public void onRFACItemLabelClick(int i, RFACLabelItem rfacLabelItem) {
 
     }
-
     @Override
     public void onRFACItemIconClick(int i, RFACLabelItem rfacLabelItem) {
 
@@ -518,4 +306,101 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         }
     }
+///////////////////////////////////////////////
+    //侧边菜单
+///////////////////////////////////////////////
+    @Override
+    public void onClick(View view) {
+
+    Boolean flag=true;
+    TextView txt=(TextView) view.findViewById(R.id.tv_title);
+    if(txt.getText().equals("全部微博"))
+    {
+        StaticData.getInstance().setWbFlag(0);
+        setTitle("所有内容");
+        flag=false;
+    }
+    else if(txt.getText().equals("相互关注"))
+    {
+        StaticData.getInstance().setWbFlag(1);
+        setTitle("相互关注");
+        flag=false;
+    }
+    else if(txt.getText().equals("原创内容"))
+    {
+        StaticData.getInstance().setWbFlag(2);
+        setTitle("原创内容");
+        flag=false;
+    }
+    else if(txt.getText().equals("提到我的"))
+    {
+        StaticData.getInstance().setWbFlag(3);
+        setTitle("提到我的");
+        flag=false;
+    }
+    if(!flag) {
+        swipe.setRefreshing(true);
+        instance.getWbData(0);
+        main_list.scrollToPosition(0);
+        main_list.smoothScrollToPosition(0);
+        resideMenu.closeMenu();
+        return;
+    }
+    if(txt.getText().equals("登录"))
+    {
+        Intent intent=new Intent();
+        intent.setClass(MainActivity.this,LoginActivity.class);
+        resideMenu.closeMenu();
+        startActivityForResult(intent,0);
+    }
+}
+    @Override
+    public void openMenu() {
+        resideMenu.setShadowVisible(true);
+        resideMenu.setBackground(R.color.colorPrimary);
+    }
+    @Override
+    public void closeMenu() {
+        resideMenu.setShadowVisible(false);
+        resideMenu.setBackground(0);
+    }
+
+///////////////////////////////////////////////
+    //接口实现
+///////////////////////////////////////////////
+    @Override
+    public void setRefresh(boolean refresh,boolean isScrollToTop) {
+        swipe.setRefreshing(refresh);
+        if(isScrollToTop)
+        {
+            main_list.scrollToPosition(0);
+            main_list.smoothScrollToPosition(0);
+        }
+    }
+    @Override
+    public void notifyListChange() {
+        ListAdapter.notifyDataSetChanged();
+    }
+    @Override
+    public void showToast(String text) {
+        Toast.makeText(this,text,Toast.LENGTH_SHORT).show();
+    }
+    @Override
+    public void toActivity(DetialsInfo detialsInfo) {
+        Intent intent=new Intent();
+        intent.putExtra("isRet",detialsInfo.isRet());
+        intent.putExtra("position",detialsInfo.getPosition());
+        intent.putExtra("hasChild",detialsInfo.isHasChild());
+        intent.setClass(MainActivity.this,DetialActivity.class);
+        startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(MainActivity.this,detialsInfo.getRe(),"transition").toBundle());
+    }
+    @Override
+    public void toActivity(Pic_List_Info pic_list_info) {
+        Intent intent=new Intent();
+        intent.putStringArrayListExtra("Largeurl",pic_list_info.getLarg_url());
+        intent.putExtra("position",pic_list_info.getPosition());
+        intent.setClass(MainActivity.this,ImageActivity.class);
+        startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(MainActivity.this,pic_list_info.getView(),"image").toBundle());
+    }
+
 }

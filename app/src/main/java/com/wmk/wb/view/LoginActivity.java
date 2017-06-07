@@ -3,17 +3,12 @@ package com.wmk.wb.view;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.widget.Button;
-import android.widget.Toast;
 
 import com.wmk.wb.R;
-import com.wmk.wb.presenter.ILoginAC;
 import com.wmk.wb.presenter.LoginAC;
-import com.wmk.wb.utils.SpUtil;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -34,10 +29,9 @@ public class LoginActivity extends AppCompatActivity {
         webSettings.setAppCacheEnabled(false);
         webSettings.setBuiltInZoomControls(false);
         webSettings.setUseWideViewPort(true);
-        webSettings.setLoadWithOverviewMode(true);
+        webSettings.setLoadWithOverviewMode(false);
         webSettings.setLayoutAlgorithm(WebSettings.LayoutAlgorithm.SINGLE_COLUMN);
-
-
+        login_view.loadUrl("https://api.weibo.com/oauth2/authorize?client_id=3741569039&response_type=code&redirect_uri=https://api.weibo.com/oauth2/default.html");
 
         login_view.setWebViewClient(new WebViewClient()
         {
@@ -45,7 +39,7 @@ public class LoginActivity extends AppCompatActivity {
             public void onPageFinished(WebView view, String url) {
                 String code;
                 Intent intent=new Intent();
-                ILoginAC lgac=new LoginAC();
+                LoginAC lgac=new LoginAC();
                 code=lgac.getTokenFromURL(url);
                 if(code!=null)
                 {
@@ -56,6 +50,5 @@ public class LoginActivity extends AppCompatActivity {
                 super.onPageFinished(view, url);
             }
         });
-        login_view.loadUrl("https://api.weibo.com/oauth2/authorize?client_id=3741569039&response_type=code&redirect_uri=https://api.weibo.com/oauth2/default.html");
     }
 }

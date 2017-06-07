@@ -10,18 +10,10 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.wmk.wb.R;
-import com.wmk.wb.presenter.DataManager;
-import com.wmk.wb.model.entity.FinalCommentsData;
-import com.wmk.wb.model.entity.retjson.CommentsData;
-import com.wmk.wb.model.entity.StaticData;
+import com.wmk.wb.model.StaticData;
+import com.wmk.wb.presenter.CommentsFG;
 import com.wmk.wb.presenter.adapter.MyCommentsRecyclerViewAdapter;
-import com.wmk.wb.utils.ConvertDate;
-
-
-import java.util.ArrayList;
-import java.util.List;
-
-import rx.Subscriber;
+import com.wmk.wb.view.Interface.ICommentsFG;
 
 /**
  * A fragment representing a list of Items.
@@ -29,7 +21,7 @@ import rx.Subscriber;
  * Activities containing this fragment MUST implement the {@link OnListFragmentInteractionListener}
  * interface.
  */
-public class CommentsFragment extends Fragment{
+public class CommentsFragment extends Fragment implements ICommentsFG{
 
     private MyCommentsRecyclerViewAdapter recAdapter;
     // TODO: Customize parameter argument names
@@ -37,6 +29,7 @@ public class CommentsFragment extends Fragment{
     // TODO: Customize parameters
 
     private long id;
+    private CommentsFG instance;
 
 
     /**
@@ -73,6 +66,7 @@ public class CommentsFragment extends Fragment{
         View view = inflater.inflate(R.layout.fragment_comments_list, container, false);
 
 
+        instance=new CommentsFG(this,id);
         recAdapter=new MyCommentsRecyclerViewAdapter(getActivity());
         RecyclerView list=(RecyclerView) view.findViewById(R.id.list);
         LinearLayoutManager manager = new LinearLayoutManager(list.getContext());
@@ -96,7 +90,7 @@ public class CommentsFragment extends Fragment{
 
     @Override
     public void onResume() {
-        getComments(0);
+        instance.getComments(0);
         super.onResume();
     }
 
@@ -106,49 +100,14 @@ public class CommentsFragment extends Fragment{
         super.onAttach(context);
 
     }
-    public void getComments(final long max_id)
-    {
-        Subscriber<CommentsData> mSubscribe;
-
-        mSubscribe=new Subscriber<CommentsData>() {
-            @Override
-            public void onCompleted() {
-                recAdapter.notifyDataSetChanged();
-            }
-
-            @Override
-            public void onError(Throwable e) {
-
-            }
-
-            @Override
-            public void onNext(CommentsData commentsdata) {
-                FinalCommentsData fdata;
-                List<FinalCommentsData>data=new ArrayList<>();
-                if(max_id==0)
-                {
-                    StaticData.getInstance().cdata.clear();
-                }
-                for (int i = 0; i < commentsdata.comments.size(); i++) {
-                    if(i==0&&max_id!=0)//防止刷新时候有一条重复
-                        i=1;
-                    fdata=new FinalCommentsData();
-                    fdata.setHeadurl(commentsdata.comments.get(i).user.getAvatar_large());
-                    fdata.setName(commentsdata.comments.get(i).user.getName());
-                    fdata.setText(commentsdata.comments.get(i).text);
-                    fdata.setTime(ConvertDate.calcDate(commentsdata.comments.get(i).created_at));
-                    fdata.setId(commentsdata.comments.get(i).id);
-                    fdata.setSource(commentsdata.comments.get(i).source);
-                    data.add(fdata);
-                }
-                StaticData.getInstance().cdata.addAll(data);
-            }
-        };
-        DataManager.getInstance().getComments(mSubscribe,id,max_id,null);
-    }
     @Override
     public void onDetach() {
         super.onDetach();
+    }
+
+    @Override
+    public void notifyListChange() {
+        recAdapter.notifyDataSetChanged();
     }
 
 
