@@ -6,6 +6,7 @@ import android.support.v7.widget.CardView;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -16,8 +17,13 @@ import com.bumptech.glide.Glide;
 import com.wmk.wb.R;
 import com.wmk.wb.model.bean.FinalCommentsData;
 import com.wmk.wb.model.StaticData;
+import com.wmk.wb.model.bean.NameEvent;
+import com.wmk.wb.utils.ClickMovementMethod;
+import com.wmk.wb.utils.TextUtils;
 import com.wmk.wb.view.SendCommentActivity;
 
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.util.List;
 
@@ -51,11 +57,12 @@ public class MyCommentsRecyclerViewAdapter extends RecyclerView.Adapter<MyCommen
     public void onBindViewHolder(final ViewHolder holder, int position) {
 
         holder.author.setText(data.get(position).getName());
-        holder.text.setText(data.get(position).getText());
+        holder.text.setText(TextUtils.getWeiBoText(mContext,data.get(position).getText()));
         holder.time.setText(data.get(position).getTime());
         holder.source.setText(Html.fromHtml(data.get(position).getSource()));
         holder.commentid=data.get(position).getId();
         holder.id=data.get(position).getWbId();
+
 
         String head=StaticData.getInstance().cdata.get(position).getHeadurl();
         if(head!=null) {
@@ -94,6 +101,14 @@ public class MyCommentsRecyclerViewAdapter extends RecyclerView.Adapter<MyCommen
             source=(TextView)view.findViewById(R.id.count);
             card=(CardView)view.findViewById(R.id.comment_card);
 
+            text.setOnTouchListener(ClickMovementMethod.getInstance());
+
+            head.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    EventBus.getDefault().post(new NameEvent(author.getText().toString()));
+                }
+            });
             card.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {

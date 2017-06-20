@@ -1,6 +1,9 @@
 package com.wmk.wb.model;
 
+import android.util.Log;
+
 import com.wmk.wb.model.bean.KEY;
+import com.wmk.wb.model.bean.LocationBean;
 import com.wmk.wb.model.bean.retjson.Access_token;
 import com.wmk.wb.model.bean.retjson.CommentsData;
 import com.wmk.wb.model.bean.retjson.User;
@@ -29,6 +32,7 @@ import rx.schedulers.Schedulers;
 public class DataManager {
     private Retrofit retrofit;
     private IDataManager iDataManager;
+    private int ScPageCount=0;
     public DataManager() {
         String baseURL = "https://api.weibo.com/";
         OkHttpClient.Builder httpClientBuilder = new OkHttpClient.Builder();
@@ -60,9 +64,25 @@ public class DataManager {
                 .subscribe(mSubscriber);
     }
 
+    public void getUserWbData(Subscriber<WbData> mSubscriber, long max_id,String screen_name)
+    {
+        iDataManager.getUserData(SpUtil.getString(StaticData.getInstance().getmContext(), "token", null), max_id, screen_name)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(mSubscriber);
+    }
+
+    public void getTopicData(Subscriber<WbData> mSubscriber,String screen_name)
+    {
+        iDataManager.getTopic(SpUtil.getString(StaticData.getInstance().getmContext(), "token", null),  screen_name)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(mSubscriber);
+    }
     public void getWbData(Subscriber<WbData> mSubscriber, long max_id) {
         int feature = 0;
 
+    //    Log.e("123",SpUtil.getString(StaticData.getInstance().getmContext(), "token", null));
         switch (StaticData.getInstance().getWbFlag()) {
             case 0: {
                 iDataManager.getData(SpUtil.getString(StaticData.getInstance().getmContext(), "token", null), max_id, feature)
@@ -93,6 +113,42 @@ public class DataManager {
                         .subscribe(mSubscriber);
                 break;
             }
+            case 4: {
+                iDataManager.toMe(SpUtil.getString(StaticData.getInstance().getmContext(), "token", null), max_id, 20)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(mSubscriber);
+                break;
+            }
+            case 5:{
+                iDataManager.getMentionsComments(SpUtil.getString(StaticData.getInstance().getmContext(), "token", null),  max_id,20)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(mSubscriber);
+                break;
+            }
+            case 6:{
+                if(max_id==0)
+                    ScPageCount=1;
+                else
+                    ScPageCount++;
+                iDataManager.getFavorites(SpUtil.getString(StaticData.getInstance().getmContext(), "token", null),  ScPageCount,20)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(mSubscriber);
+                break;
+            }
+            case 7:{
+                if(max_id==0)
+                    ScPageCount=1;
+                else
+                    ScPageCount++;
+                iDataManager.getNearby(SpUtil.getString(StaticData.getInstance().getmContext(), "token", null),ScPageCount,20,LocationBean.getInstance().getLat(),LocationBean.getInstance().getLong())
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(mSubscriber);
+            }
+
         }
 
     }
@@ -113,6 +169,7 @@ public class DataManager {
                 .subscribe(mSubscriber);
 
     }
+
     public void setComments(Subscriber<ResponseBody> mSubscriber, long id, long cid,String text) {
 
         if(text!=null)

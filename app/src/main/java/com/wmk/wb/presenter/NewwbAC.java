@@ -10,7 +10,7 @@ import rx.Subscriber;
  * Created by wmk on 2017/6/7.
  */
 
-public class NewwbAC {
+public class NewwbAC  extends BasePresenter{
     INewWB instance;
     public NewwbAC(INewWB instance) {
         this.instance=instance;

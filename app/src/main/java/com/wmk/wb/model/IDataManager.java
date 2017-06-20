@@ -23,6 +23,9 @@ public interface IDataManager {
     @GET("2/statuses/home_timeline.json")
     Observable<WbData> getData(@Query("access_token") String access_token,@Query("max_id") long max_id,@Query("feature") int feature);
 
+    @GET("2/statuses/user_timeline.json")
+    Observable<WbData> getUserData(@Query("access_token") String access_token,@Query("max_id") long max_id,@Query("screen_name") String screen_name);
+
     @GET("2/statuses/mentions.json")
     Observable<WbData> getMentionsData(@Query("access_token") String access_token,@Query("max_id") long max_id,@Query("feature") int feature);
 
@@ -46,4 +49,19 @@ public interface IDataManager {
 
     @POST("2/comments/reply.json")
     Observable<ResponseBody> reply(@Query("access_token") String access_token , @Query("cid") long cid,@Query("id") long id,@Query("comment") String status);
+
+    @GET("2/comments/to_me.json")
+    Observable<WbData> toMe(@Query("access_token") String access_token,@Query("max_id") long max_id,@Query("count") int count);
+
+    @GET("2/comments/mentions.json")
+    Observable<WbData> getMentionsComments(@Query("access_token") String access_token,@Query("max_id") long max_id,@Query("count") int count);
+
+    @GET("2/search/topics.json")
+    Observable<WbData> getTopic(@Query("access_token") String access_token,@Query("q") String topic);
+
+    @GET("2/favorites.json")
+    Observable<WbData> getFavorites(@Query("access_token") String access_token,@Query("page") int page,@Query("count") int count);
+
+    @GET("2/place/nearby_timeline.json")
+    Observable<WbData> getNearby(@Query("access_token") String access_token,@Query("page") int page,@Query("count") int count,@Query("lat") String lat,@Query("long") String Long);
 }

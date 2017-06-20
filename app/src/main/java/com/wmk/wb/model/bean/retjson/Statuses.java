@@ -28,6 +28,9 @@ public class Statuses {
     @SerializedName("retweeted_status")
     public Retweeted_Statuses retweeted_statuses;
 
+    @SerializedName("status")
+    public Retweeted_Statuses status;//接受评论时使用
+
     @SerializedName("pic_urls")
     public List<Pic_Urls> pic_urls;
 
@@ -78,6 +81,7 @@ public class Statuses {
     }
 
     public List<String> getPic_ids() {
+
         return pic_ids;
     }
 
@@ -85,8 +89,11 @@ public class Statuses {
         return created_at;
     }
 
-    public Retweeted_Statuses getRetweeted_statuses() {
-        return retweeted_statuses;
+    public Retweeted_Statuses getRetweeted_statuses(int flag) {
+        if(flag==1&&flag==3)
+            return retweeted_statuses;
+        else
+            return  status;
     }
 
     public int getReposts_count() {

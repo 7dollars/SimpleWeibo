@@ -13,9 +13,16 @@ public class User {
     @SerializedName("name")
     public String name;
 
+    @SerializedName("description")
+    public String description;
+
+    @SerializedName("profile_image_url")
+    public String profile_image_url;
+
     public String getAvatar_large() {
         return avatar_large;
     }
+
 
 
     public String getName()
@@ -28,5 +35,21 @@ public class User {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getProfile_image_url() {
+        return profile_image_url;
+    }
+
+    public void setProfile_image_url(String profile_image_url) {
+        this.profile_image_url = profile_image_url;
     }
 }

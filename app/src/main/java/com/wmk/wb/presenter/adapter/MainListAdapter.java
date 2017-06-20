@@ -8,10 +8,10 @@ import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
 import com.bumptech.glide.Glide;
-import com.special.ResideMenu.ResideMenu;
 import com.wmk.wb.R;
 import com.wmk.wb.model.bean.DetialsInfo;
 import com.wmk.wb.model.bean.FinalViewData;
+import com.wmk.wb.utils.TextUtils;
 import com.wmk.wb.view.holder.MainViewHolder3;
 import com.wmk.wb.model.StaticData;
 import com.wmk.wb.model.bean.Pic_List_Info;
@@ -28,15 +28,14 @@ public class MainListAdapter extends RecyclerView.Adapter  {
     private SwipeRefreshLayout mswipe;
     private  Subscriber<DetialsInfo> mSubscriber;
     private  Subscriber<Pic_List_Info> mSubscriber2;
-    private  ResideMenu resideMenu;
 
-    public MainListAdapter(Context context, SwipeRefreshLayout swipe, Subscriber<DetialsInfo> s, Subscriber<Pic_List_Info> s2, ResideMenu resideMenu) {
+
+    public MainListAdapter(Context context, SwipeRefreshLayout swipe, Subscriber<DetialsInfo> s, Subscriber<Pic_List_Info> s2) {
         super();
         mContext = context;
         mswipe = swipe;
         mSubscriber=s;
         mSubscriber2=s2;
-        this.resideMenu=resideMenu;
     }
 
     @Override
@@ -60,14 +59,14 @@ public class MainListAdapter extends RecyclerView.Adapter  {
             {
                 MainViewHolder3 mainviewholder = new MainViewHolder3(LayoutInflater.from(
                         mContext).inflate(R.layout.wb_text_normal_pic, parent,
-                        false),mSubscriber,resideMenu);
+                        false),mSubscriber);
                 return mainviewholder;
             }
             case 1:
             {
                 MainViewHolder3 mainviewholder = new MainViewHolder3(LayoutInflater.from(
                         mContext).inflate(R.layout.wb_text_convey_pic, parent,
-                        false),mSubscriber,resideMenu);
+                        false),mSubscriber);
                 return mainviewholder;
             }
         }
@@ -84,7 +83,7 @@ public class MainListAdapter extends RecyclerView.Adapter  {
             case 0:
             {
                 MainViewHolder3 holder3=(MainViewHolder3)holder;
-                holder3.content.setText(data.getText());
+                holder3.content.setText(TextUtils.getWeiBoText(mContext,data.getText()));
                 holder3.author.setText(data.getName());
                 holder3.time.setText(data.getTime());
                 holder3.reposts_comments_count.setText(data.getReposts_count()+"转发 | "+data.getComments_count()+"回复");
@@ -100,10 +99,10 @@ public class MainListAdapter extends RecyclerView.Adapter  {
             {
                 int i=position;
                 MainViewHolder3 holder3=(MainViewHolder3)holder;
-                holder3.content.setText(data.getText());
+                holder3.content.setText(TextUtils.getWeiBoText(mContext,data.getText()));
                 holder3.author.setText(data.getName());
                 holder3.time.setText(data.getTime());
-                holder3.ret_content.setText("@"+data.getRet_name()+":"+data.getRet_text());
+                holder3.ret_content.setText(TextUtils.getWeiBoText(mContext,"@"+data.getRet_name()+":"+data.getRet_text()));
                 holder3.reposts_comments_count.setText(data.getReposts_count()+"转发 | "+data.getComments_count()+"回复");
                 holder3.reposts_comments_ret.setText(data.getReposts_count_ret()+"转发 | "+data.getComments_count_ret()+"回复");
 

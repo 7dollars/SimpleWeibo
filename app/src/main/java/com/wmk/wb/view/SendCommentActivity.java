@@ -5,10 +5,12 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.stylingandroid.prism.Prism;
 import com.wmk.wb.R;
 import com.wmk.wb.presenter.SendCommentAC;
 import com.wmk.wb.view.Interface.ISendComment;
@@ -31,10 +33,24 @@ public class SendCommentActivity extends AppCompatActivity implements ISendComme
 
     private boolean clickflag=false;
     private long id=0;
-
+    private Prism prism;
     private int sendflag=0;
     private long commentid=0;
     SendCommentAC instance;
+    private int position;
+    private boolean isRet;
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch(item.getItemId()) {
+            case android.R.id.home: {
+                this.onBackPressed();
+                break;
+            }
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -49,8 +65,14 @@ public class SendCommentActivity extends AppCompatActivity implements ISendComme
         id=intent.getLongExtra("id",0);
         sendflag=intent.getIntExtra("sendflag",0);
         commentid=intent.getLongExtra("commentid",0);
+        position=intent.getIntExtra("position",0);
+        isRet=intent.getBooleanExtra("isRet",false);
         instance=new SendCommentAC(this);
 
+        prism = Prism.Builder.newInstance()
+                .background(mToolbar)
+                .background(getWindow())
+                .build();
         if(sendflag==0)
             setTitle("转发");
         else
@@ -61,8 +83,19 @@ public class SendCommentActivity extends AppCompatActivity implements ISendComme
     {
         if(editText.getText()!=null)
         {
-            instance.send(sendflag,id,commentid,editText.getText().toString());
+            instance.send(sendflag,id,commentid,editText.getText().toString(),position,isRet);
         }
+    }
+    @Override
+    protected void onDestroy() {
+        instance=null;
+        super.onDestroy();
+    }
+
+    @Override
+    protected void onResume() {
+        prism.setColor(getResources().getColor(instance.getThemeColor()));
+        super.onResume();
     }
 
     @Override

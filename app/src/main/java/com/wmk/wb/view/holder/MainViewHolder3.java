@@ -2,12 +2,17 @@ package com.wmk.wb.view.holder;
 
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
-import com.special.ResideMenu.ResideMenu;
 import com.wmk.wb.R;
 import com.wmk.wb.model.bean.DetialsInfo;
+import com.wmk.wb.model.bean.NameEvent;
+import com.wmk.wb.utils.ClickMovementMethod;
+
+import org.greenrobot.eventbus.EventBus;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import rx.Observable;
@@ -29,7 +34,7 @@ public class MainViewHolder3 extends RecyclerView.ViewHolder{
 
     public CardView cv;
     public CardView cv_ret;
-    public MainViewHolder3(final View itemView, final Subscriber<DetialsInfo> mSubscriber, ResideMenu resideMenu) {
+    public MainViewHolder3(final View itemView, final Subscriber<DetialsInfo> mSubscriber) {
         super(itemView);
         author = (TextView) itemView.findViewById(R.id.txt_author);
         time = (TextView) itemView.findViewById(R.id.txt_time);
@@ -38,8 +43,13 @@ public class MainViewHolder3 extends RecyclerView.ViewHolder{
         pic_view=(RecyclerView)itemView.findViewById(R.id.list_pic);
         cv=(CardView)itemView.findViewById(R.id.main);
         cv_ret=(CardView)itemView.findViewById(R.id.comment);
-      //  resideMenu.removeIgnoredView(pic_view);
-      //  resideMenu.addIgnoredView(pic_view);
+        head.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                EventBus.getDefault().post(new NameEvent(author.getText().toString()));
+            }
+        });
+        content.setOnTouchListener(ClickMovementMethod.getInstance());
 
         cv.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -85,6 +95,8 @@ public class MainViewHolder3 extends RecyclerView.ViewHolder{
         {
             ret_content = (TextView) itemView.findViewById(R.id.ret_content);
             reposts_comments_ret=(TextView)itemView.findViewById(R.id.count_ret);
+
+            ret_content.setOnTouchListener(ClickMovementMethod.getInstance());
         }
         reposts_comments_count=(TextView)itemView.findViewById(R.id.count);
 

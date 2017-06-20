@@ -1,6 +1,7 @@
 package com.wmk.wb.presenter;
 
 import com.wmk.wb.model.DataManager;
+import com.wmk.wb.model.StaticData;
 import com.wmk.wb.view.Interface.ISendComment;
 
 import okhttp3.ResponseBody;
@@ -10,13 +11,13 @@ import rx.Subscriber;
  * Created by wmk on 2017/6/7.
  */
 
-public class SendCommentAC {
+public class SendCommentAC  extends BasePresenter{
     private ISendComment instance;
     public SendCommentAC(ISendComment instance) {
         this.instance=instance;
     }
 
-    public void send(int flag, long id, long commentid, String text)
+    public void send(int flag, long id, long commentid, String text,int position,boolean isRet)
     {
         if(text!=null)
         {
@@ -76,7 +77,13 @@ public class SendCommentAC {
 
             switch(flag) {
                 case 0: {
-                    DataManager.getInstance().relay(mSubscriber, id, text.toString());
+                    if(!isRet) {
+                        if (StaticData.getInstance().getData().get(position).getText() != null && StaticData.getInstance().getData().get(position).getRet_text() != null)
+                            DataManager.getInstance().relay(mSubscriber, id, text.toString() + "//@" + StaticData.getInstance().getData().get(position).getName() +
+                                    ":" + StaticData.getInstance().getData().get(position).getText());
+                    }
+                    else
+                        DataManager.getInstance().relay(mSubscriber, id, text.toString());
                     break;
                 }
                 case 1:{

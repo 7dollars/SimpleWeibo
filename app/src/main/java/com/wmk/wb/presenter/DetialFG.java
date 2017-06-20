@@ -40,7 +40,7 @@ public class DetialFG {
     }
     public void setData(int position, boolean isRet, boolean hasChild)
     {
-        FinalViewData fdata= StaticData.getInstance().data.get(position);
+        FinalViewData fdata= StaticData.getInstance().getData().get(position);
 
         if(isRet) {
             instance.updateData(false,fdata.getRet_name(),fdata.getRet_text(),fdata.getReposts_count_ret() + "转发 | " + fdata.getComments_count_ret() + "回复",fdata.getRet_time());

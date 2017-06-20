@@ -10,6 +10,7 @@ import android.widget.ImageView;
 import com.bumptech.glide.Glide;
 import com.wmk.wb.view.Interface.IImage;
 
+import me.xiaopan.sketch.SketchImageView;
 import uk.co.senab.photoview.PhotoView;
 
 /**
@@ -33,11 +34,12 @@ public class PicPagerAdapter extends PagerAdapter {
 
     @Override
     public Object instantiateItem(ViewGroup container, int position) {
-        PhotoView imageView = new PhotoView(context);
+        SketchImageView imageView = new SketchImageView(context);
         ViewGroup.LayoutParams layoutParams = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
         imageView .setLayoutParams(layoutParams);
         imageView.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
-        imageView.setMaximumScale(10);
+        imageView.setZoomEnabled(true);
+      //  imageView.setMaximumScale(10);
         container.addView(imageView);
         // imageView.setBackgroundColor(R.color.colorPrimaryDark);
         instance.loadPic(position,imageView);

@@ -1,5 +1,6 @@
 package com.wmk.wb.view.fragment;
 
+import android.app.ActivityOptions;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -7,6 +8,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,11 +17,16 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.wmk.wb.R;
 import com.wmk.wb.model.bean.FinalViewData;
+import com.wmk.wb.model.bean.NameEvent;
 import com.wmk.wb.model.bean.Pic_List_Info;
 import com.wmk.wb.presenter.DetialFG;
 import com.wmk.wb.presenter.adapter.PicListAdapter;
+import com.wmk.wb.utils.ClickMovementMethod;
+import com.wmk.wb.utils.TextUtils;
 import com.wmk.wb.view.Interface.IDetialFG;
 import com.wmk.wb.view.ImageActivity;
+
+import org.greenrobot.eventbus.EventBus;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -75,6 +82,7 @@ public class DetialFragment extends Fragment implements IDetialFG{
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         if (getArguments() != null) {
+
             if(getArguments().getBoolean("isRet")) {
                 View v=inflater.inflate(R.layout.fragment_detial, container, false);
                 head=(CircleImageView)v.findViewById(R.id.imageView);
@@ -83,6 +91,7 @@ public class DetialFragment extends Fragment implements IDetialFG{
                 content=(TextView)v.findViewById(R.id.txt_content);
                 count=(TextView)v.findViewById(R.id.count);
                 list_pic=(RecyclerView)v.findViewById(R.id.list_pic);
+                content.setOnTouchListener(ClickMovementMethod.getInstance());
                 instance.setData(getArguments().getInt("position"),getArguments().getBoolean("isRet"),getArguments().getBoolean("hasChild"));
                 return v;
             }
@@ -96,6 +105,8 @@ public class DetialFragment extends Fragment implements IDetialFG{
                 list_pic=(RecyclerView)v.findViewById(R.id.list_pic);
                 ret_content=(TextView)v.findViewById(R.id.ret_content);
                 count_ret=(TextView)v.findViewById(R.id.count_ret);
+                content.setOnTouchListener(ClickMovementMethod.getInstance());
+                ret_content.setOnTouchListener(ClickMovementMethod.getInstance());
                 instance.setData(getArguments().getInt("position"),getArguments().getBoolean("isRet"),getArguments().getBoolean("hasChild"));
                 return v;
             }
@@ -107,6 +118,7 @@ public class DetialFragment extends Fragment implements IDetialFG{
                 content=(TextView)v.findViewById(R.id.txt_content);
                 count=(TextView)v.findViewById(R.id.count);
                 list_pic=(RecyclerView)v.findViewById(R.id.list_pic);
+                content.setOnTouchListener(ClickMovementMethod.getInstance());
                 instance.setData(getArguments().getInt("position"),getArguments().getBoolean("isRet"),getArguments().getBoolean("hasChild"));
                 return v;
             }
@@ -139,24 +151,39 @@ public class DetialFragment extends Fragment implements IDetialFG{
         intent.putStringArrayListExtra("Largeurl",pic_list_info.getLarg_url());
         intent.putExtra("position",pic_list_info.getPosition());
         intent.setClass(getActivity(),ImageActivity.class);
-        startActivity(intent);
+        startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(getActivity(),pic_list_info.getView(),"image").toBundle());
+      //  startActivity(intent);
     }
 
     @Override
     public void updateData(boolean flag,String author, String content, String count, String time) {
         this.author.setText(author);
-        this.content.setText(content);
+        this.content.setText(TextUtils.getWeiBoText(getContext(),content));
         this.count.setText(count);
         this.time.setText(time);
+        final String au=author;
+        this.head.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                EventBus.getDefault().post(new NameEvent(au.toString()));
+            }
+        });
     }
     @Override
     public void updateData(String author, String content, String count, String count_ret, String ret_content, String time) {
         this.author.setText(author);
-        this.content.setText(content);
+        this.content.setText(TextUtils.getWeiBoText(getContext(),content));
         this.count.setText(count);
         this.time.setText(time);
         this.count_ret.setText(count_ret);
         this.ret_content.setText(ret_content);
+        final String au=author;
+        this.head.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                EventBus.getDefault().post(new NameEvent(au.toString()));
+            }
+        });
     }
     @Override
     public void setPic(boolean flag,FinalViewData fdata) {
