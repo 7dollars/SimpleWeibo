@@ -35,6 +35,7 @@ import rx.Subscriber;
 public class PersonalInfoActivity extends AppCompatActivity implements IPersonal{
     @Override
     protected void onDestroy() {
+        StaticData.getInstance().setPersonalflag(false);
         super.onDestroy();
     }
 

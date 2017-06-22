@@ -353,7 +353,6 @@ public class MainActivity extends AppCompatActivity implements IMain,Myfab.MenuL
 
     @Override
     protected void onDestroy() {
-        instance.destroyLocation();
         EventBus.getDefault().unregister(this);
         super.onDestroy();
     }
@@ -535,10 +534,7 @@ public void click(int i) {
             }
             case R.id.zb:
             {
-                LocationBean bean=LocationBean.getInstance();
-                bean.setLat("36.321158");
-                bean.setLong("120.387049");
-                bean.setRange(3000);
+              /*  LocationBean bean=LocationBean.getInstance();
                 StaticData.getInstance().setWbFlag(7);
                 setTitle("周边");
                 instance.initLocation(getApplicationContext());
@@ -547,11 +543,22 @@ public void click(int i) {
                 swipe.setRefreshing(true);
                 instance.getWbData(0,commentflag,"",bean);
                 main_list.scrollToPosition(0);
-                main_list.smoothScrollToPosition(0);
+                main_list.smoothScrollToPosition(0);*/
+              Intent intent=new Intent();
+              intent.setClass(MainActivity.this,ExploreActivity.class);
+              startActivity(intent);
                 break;
             }
             case R.id.ts:
             {
+                StaticData.getInstance().setWbFlag(8);
+                setTitle("热门微博");
+                commentflag=1;
+                dw.closeDrawer();
+                swipe.setRefreshing(true);
+                instance.getWbData(0,commentflag,"",null);
+                main_list.scrollToPosition(0);
+                main_list.smoothScrollToPosition(0);
                 break;
             }
         }

@@ -20,7 +20,10 @@ public class User {
     public String profile_image_url;
 
     public String getAvatar_large() {
-        return avatar_large;
+        if(avatar_large!=null)
+            return avatar_large;
+        else
+            return null;
     }
 
 

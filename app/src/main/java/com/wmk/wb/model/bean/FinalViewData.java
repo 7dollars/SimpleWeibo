@@ -55,7 +55,8 @@ public class FinalViewData {
     }
 
     public FinalViewData setHeadurl(String headurl) {
-        this.headurl = headurl;
+        if(headurl!=null)
+            this.headurl = headurl;
         return  this;
     }
 

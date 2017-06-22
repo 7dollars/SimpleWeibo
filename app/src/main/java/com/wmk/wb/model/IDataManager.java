@@ -64,4 +64,7 @@ public interface IDataManager {
 
     @GET("2/place/nearby_timeline.json")
     Observable<WbData> getNearby(@Query("access_token") String access_token,@Query("page") int page,@Query("count") int count,@Query("lat") String lat,@Query("long") String Long);
+
+    @GET("portal.php")
+    Observable<WbData> getHot(@Query("a") String a,@Query("page") int page,@Query("c") String c,@Query("catlog_id") String catlog_id);
 }

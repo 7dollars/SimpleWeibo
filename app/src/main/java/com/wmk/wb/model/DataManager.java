@@ -30,11 +30,13 @@ import rx.schedulers.Schedulers;
  */
 
 public class DataManager {
-    private Retrofit retrofit;
+    private Retrofit retrofit,retrofit2;
     private IDataManager iDataManager;
+    private IDataManager weicoManager;
     private int ScPageCount=0;
     public DataManager() {
         String baseURL = "https://api.weibo.com/";
+        String weicoURL= "http://weicoapi.weico.cc/";
         OkHttpClient.Builder httpClientBuilder = new OkHttpClient.Builder();
         httpClientBuilder.connectTimeout(5, TimeUnit.SECONDS);
         httpClientBuilder.addInterceptor(new RequestInterceptor());
@@ -44,7 +46,15 @@ public class DataManager {
                 .addConverterFactory(GsonConverterFactory.create())
                 .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
                 .build();
+        retrofit2=new Retrofit.Builder()
+                .baseUrl(weicoURL)
+                .client(httpClientBuilder.build())
+                .addConverterFactory(GsonConverterFactory.create())
+                .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
+                .build();
+
         iDataManager = retrofit.create(IDataManager.class);
+        weicoManager = retrofit2.create(IDataManager.class);
     }
 
     private static class SingletonHolder {
@@ -147,6 +157,18 @@ public class DataManager {
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(mSubscriber);
+                break;
+            }
+            case 8:{
+                if(max_id==0)
+                    ScPageCount=1;
+                else
+                    ScPageCount++;
+                weicoManager.getHot("get_cat_list_full",ScPageCount,"default","102803")
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(mSubscriber);
+                break;
             }
 
         }

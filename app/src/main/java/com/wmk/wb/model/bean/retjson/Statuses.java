@@ -77,6 +77,10 @@ public class Statuses {
     }
 
     public User getUser() {
+        if(user==null) {
+            user = new User();
+            user.setName("");
+        }
         return user;
     }
 
@@ -90,7 +94,7 @@ public class Statuses {
     }
 
     public Retweeted_Statuses getRetweeted_statuses(int flag) {
-        if(flag==1&&flag==3)
+        if(flag==1||flag==3)
             return retweeted_statuses;
         else
             return  status;

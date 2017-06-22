@@ -66,11 +66,6 @@ public class MyCommentsRecyclerViewAdapter extends RecyclerView.Adapter<MyCommen
 
         String head=StaticData.getInstance().cdata.get(position).getHeadurl();
         if(head!=null) {
-        /*    if (CacheUtil.getBitmapFromMemCache(head) != null) {
-                holder.head.setImageBitmap(CacheUtil.getBitmapFromMemCache(head));
-            } else {
-                DataManager.getInstance().getPic(loadPic(head,this), head);
-            }*/
             Glide.with(mContext).load(head).into(holder.head);
         }
     }

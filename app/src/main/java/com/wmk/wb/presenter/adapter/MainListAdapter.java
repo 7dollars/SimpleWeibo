@@ -88,7 +88,9 @@ public class MainListAdapter extends RecyclerView.Adapter  {
                 holder3.time.setText(data.getTime());
                 holder3.reposts_comments_count.setText(data.getReposts_count()+"转发 | "+data.getComments_count()+"回复");
 
-                Glide.with(mContext).load(data.getHeadurl()).into(holder3.head);
+                if(data.getHeadurl()!=null)
+                    Glide.with(mContext).load(data.getHeadurl()).into(holder3.head);
+
                 manager = new LinearLayoutManager(holder3.pic_view.getContext());
                 manager.setOrientation(LinearLayoutManager.HORIZONTAL);
                 holder3.pic_view.setLayoutManager(manager);
@@ -106,7 +108,8 @@ public class MainListAdapter extends RecyclerView.Adapter  {
                 holder3.reposts_comments_count.setText(data.getReposts_count()+"转发 | "+data.getComments_count()+"回复");
                 holder3.reposts_comments_ret.setText(data.getReposts_count_ret()+"转发 | "+data.getComments_count_ret()+"回复");
 
-                Glide.with(mContext).load(data.getHeadurl()).into(holder3.head);
+                if(data.getHeadurl()!=null)
+                    Glide.with(mContext).load(data.getHeadurl()).into(holder3.head);
 
                 manager = new LinearLayoutManager(holder3.pic_view.getContext());
                 manager.setOrientation(LinearLayoutManager.HORIZONTAL);

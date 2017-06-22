@@ -18,6 +18,7 @@ import java.util.List;
 public class StaticData {
 
     private boolean personalflag=false;
+    private boolean expflag=false;
     private boolean topicflag=false;
     private int themecolor= R.color.colorPrimary;
 
@@ -39,6 +40,7 @@ public class StaticData {
 
     public List<FinalViewData> data;
     public List<FinalViewData> Personaldata;
+    public List<FinalViewData> Expdata;
     public List<FinalCommentsData> cdata;
     public Context mContext;
 
@@ -75,13 +77,18 @@ public class StaticData {
         data=new ArrayList<>();
         cdata=new ArrayList<>();
         Personaldata=new ArrayList<>();
+        Expdata=new ArrayList<>();
         system    =   new    Date(System.currentTimeMillis());//获取当前时间
         localUser=new User();
     }
 
     public List<FinalViewData> getData() {
-        if(!isPersonalflag())
-            return data;
+        if(!isPersonalflag()) {
+            if(!expflag)
+                return data;
+            else
+                return Expdata;
+        }
         else
             return Personaldata;
     }
@@ -100,6 +107,22 @@ public class StaticData {
 
     public Date getSystem() {
         return system;
+    }
+
+    public boolean isExpflag() {
+        return expflag;
+    }
+
+    public void setExpflag(boolean expflag) {
+        this.expflag = expflag;
+    }
+
+    public List<FinalViewData> getExpdata() {
+        return Expdata;
+    }
+
+    public void setExpdata(List<FinalViewData> expdata) {
+        Expdata = expdata;
     }
 
     private static class SingletonHolder{
