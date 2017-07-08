@@ -12,7 +12,7 @@ public abstract class EndlessRecyclerOnScrollListener extends
 
     private int previousTotal = 0;
     private boolean loading = true;
-    int firstVisibleItem, visibleItemCount, totalItemCount;
+    int firstVisibleItem, visibleItemCount, totalItemCount,oldCount;
 
     private int currentPage = 1;
 
@@ -31,7 +31,16 @@ public abstract class EndlessRecyclerOnScrollListener extends
         totalItemCount = mLinearLayoutManager.getItemCount();
         firstVisibleItem = mLinearLayoutManager.findFirstVisibleItemPosition();
 
-        if (loading) {
+        if(!recyclerView.canScrollVertically(1)) {
+            if (!loading) {
+                onLoadMore(0);
+                loading = true;
+            }
+        }
+        else {
+            loading=false;
+        }
+   /*     if (loading) {
             if (totalItemCount > previousTotal) {
                 loading = false;
                 previousTotal = totalItemCount;
@@ -48,7 +57,7 @@ public abstract class EndlessRecyclerOnScrollListener extends
             onLoadMore(currentPage);
             loading = true;
 
-        }
+        }*/
     }
     public abstract void onLoadMore(int currentPage);
 }

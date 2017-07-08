@@ -15,4 +15,6 @@ public interface IPersonal {
     void toActivity(DetialsInfo detialsInfo);
     void toActivity(Pic_List_Info pic_list_info);
     void toActivity(User user);
+    void setLoadingFaild();
+    void setLoadMore(boolean loadmore);
 }

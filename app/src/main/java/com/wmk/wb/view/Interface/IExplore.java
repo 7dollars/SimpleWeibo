@@ -14,4 +14,6 @@ public interface IExplore {
     void showToast(String text);
     void toActivity(DetialsInfo detialsInfo);
     void toActivity(Pic_List_Info pic_list_info);
+    void setLoadingFaild();
+    void setLoadMore(boolean loadmore);
 }

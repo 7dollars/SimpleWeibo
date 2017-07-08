@@ -9,7 +9,25 @@ import com.wmk.wb.model.StaticData;
 public class LocationBean {
     private String Lat;
     private String Long;
+    private double dLat;
+    private double dLong;
     private int Range;
+
+    public double getdLat() {
+        return dLat;
+    }
+
+    public void setdLat(double dLat) {
+        this.dLat = dLat;
+    }
+
+    public double getdLong() {
+        return dLong;
+    }
+
+    public void setdLong(double dLong) {
+        this.dLong = dLong;
+    }
 
     private static class SingletonHolder{
         private static final LocationBean INSTANCE = new LocationBean();

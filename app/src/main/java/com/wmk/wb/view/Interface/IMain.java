@@ -16,4 +16,6 @@ public interface IMain {
     void toActivity(Pic_List_Info pic_list_info);
     void toActivity(User user);
     void MysetTitle(String title);
+    void setLoadingFaild();
+    void setLoadMore(boolean loadmore);
 }

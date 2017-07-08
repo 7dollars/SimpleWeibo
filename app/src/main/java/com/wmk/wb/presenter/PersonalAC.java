@@ -35,11 +35,14 @@ public class PersonalAC  extends BasePresenter{
                 @Override
                 public void onCompleted() {
                     instance.notifyListChange();
+                    instance.setLoadMore(false);
                 }
 
                 @Override
                 public void onError(Throwable e) {
                     instance.showToast("刷新失败");
+                    instance.setLoadMore(false);
+                    instance.setLoadingFaild();
                 }
 
                 @Override
@@ -62,7 +65,12 @@ public class PersonalAC  extends BasePresenter{
                                 .setId(wbData.getStatuses(flag).get(i).getId())
                                 .setTime(ConvertDate.calcDate(wbData.getStatuses(flag).get(i).getCreated_at()))
                                 .setReposts_count(wbData.getStatuses(flag).get(i).getReposts_count())
-                                .setComments_count(wbData.getStatuses(flag).get(i).getComments_count());
+                                .setComments_count(wbData.getStatuses(flag).get(i).getComments_count())
+                                .setDescription(wbData.getStatuses(flag).get(i).getUser().getDescription())
+                                .setFollowers_count(wbData.getStatuses(flag).get(i).getUser().getFollowers_count())
+                                .setFriends_count(wbData.getStatuses(flag).get(i).getUser().getFriends_count())
+                                .setStatuses_count(wbData.getStatuses(flag).get(i).getUser().getStatuses_count())
+                                .setGender(wbData.getStatuses(flag).get(i).getUser().getGender());
 
                         if (wbData.getStatuses(flag).get(i).getRetweeted_statuses(flag) != null) {
                             fdata.setRet_time(ConvertDate.calcDate(wbData.getStatuses(flag).get(i).getRetweeted_statuses(flag).getCreated_at()))

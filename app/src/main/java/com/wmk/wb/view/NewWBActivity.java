@@ -13,6 +13,7 @@ import android.widget.Toast;
 import com.stylingandroid.prism.Prism;
 import com.wmk.wb.R;
 import com.wmk.wb.presenter.NewwbAC;
+import com.wmk.wb.utils.ColorThemeUtils;
 import com.wmk.wb.view.Interface.INewWB;
 
 import butterknife.BindView;
@@ -85,7 +86,7 @@ public class NewWBActivity extends AppCompatActivity implements INewWB {
     }
     @Override
     protected void onResume() {
-        prism.setColor(getResources().getColor(instance.getThemeColor()));
+        prism.setColor(getResources().getColor(ColorThemeUtils.getColor(instance.getThemeColor())));
         super.onResume();
     }
 }

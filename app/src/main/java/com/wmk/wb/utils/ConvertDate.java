@@ -77,7 +77,10 @@ public class ConvertDate {
             }
             default:
             {
-                ret=new SimpleDateFormat("MM月dd日 ").format(now)+ms;
+                ret = new SimpleDateFormat("MM月dd日 ").format(now) + ms;
+                if(system.getYear()-now.getYear()>0) {
+                    ret=String.valueOf(now.getYear()+1900)+"年"+ret;
+                }
                 break;
             }
 

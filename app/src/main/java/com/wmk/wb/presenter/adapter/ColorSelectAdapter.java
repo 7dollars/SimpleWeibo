@@ -8,6 +8,7 @@ import android.widget.ImageView;
 import android.widget.SimpleAdapter;
 
 import com.wmk.wb.R;
+import com.wmk.wb.utils.ColorThemeUtils;
 
 import java.util.List;
 import java.util.Map;
@@ -17,15 +18,14 @@ import java.util.Map;
  */
 
 public class ColorSelectAdapter extends BaseAdapter{
-    private int [] color={R.color.colorPrimary,R.color.primaryColor,R.color.colorAccent,R.color.md_grey_600,
-            R.color.md_green_800};
+
     public ColorSelectAdapter() {
         super();
     }
 
     @Override
     public int getCount() {
-        return color.length;
+        return ColorThemeUtils.getColorLength();
     }
 
     @Override
@@ -52,7 +52,7 @@ public class ColorSelectAdapter extends BaseAdapter{
         {
             vh1=(ViewHolder) convertView.getTag();
         }
-        vh1.imageView.setBackgroundColor(parent.getContext().getResources().getColor(color[position]));
+        vh1.imageView.setBackgroundColor(parent.getContext().getResources().getColor(ColorThemeUtils.getColor(position)));
         return convertView;
     }
     public static class ViewHolder {

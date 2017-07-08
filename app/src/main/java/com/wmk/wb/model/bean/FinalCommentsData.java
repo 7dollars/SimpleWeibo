@@ -17,55 +17,62 @@ public class FinalCommentsData {
         return name;
     }
 
-    public void setName(String name) {
+    public FinalCommentsData setName(String name) {
         this.name = name;
+        return this;
     }
 
     public String getText() {
         return text;
     }
 
-    public void setText(String text) {
+    public FinalCommentsData setText(String text) {
         this.text = text;
+        return this;
     }
 
     public String getHeadurl() {
         return headurl;
     }
 
-    public void setHeadurl(String headurl) {
+    public FinalCommentsData setHeadurl(String headurl) {
         this.headurl = headurl;
+        return this;
     }
 
     public String getTime() {
         return time;
     }
 
-    public void setTime(String time) {
+    public FinalCommentsData setTime(String time) {
         this.time = time;
+        return this;
     }
 
     public long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public FinalCommentsData setId(long id) {
         this.id = id;
+        return this;
     }
 
     public String getSource() {
         return source;
     }
 
-    public void setSource(String source) {
+    public FinalCommentsData setSource(String source) {
         this.source = source;
+        return this;
     }
 
     public Long getWbId() {
         return wbId;
     }
 
-    public void setWbId(Long wbId) {
+    public FinalCommentsData setWbId(Long wbId) {
         this.wbId = wbId;
+        return this;
     }
 }

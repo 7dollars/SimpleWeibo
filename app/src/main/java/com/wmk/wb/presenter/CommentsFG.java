@@ -51,13 +51,13 @@ public class CommentsFG {
                     if(i==0&&max_id!=0)//防止刷新时候有一条重复
                         i=1;
                     fdata=new FinalCommentsData();
-                    fdata.setHeadurl(commentsdata.comments.get(i).user.getAvatar_large());
-                    fdata.setName(commentsdata.comments.get(i).user.getName());
-                    fdata.setText(commentsdata.comments.get(i).text);
-                    fdata.setTime(ConvertDate.calcDate(commentsdata.comments.get(i).created_at));
-                    fdata.setId(commentsdata.comments.get(i).id);
-                    fdata.setSource(commentsdata.comments.get(i).source);
-                    fdata.setWbId(id);
+                    fdata.setHeadurl(commentsdata.comments.get(i).user.getAvatar_large())
+                            .setName(commentsdata.comments.get(i).user.getName())
+                            .setText(commentsdata.comments.get(i).text)
+                            .setTime(ConvertDate.calcDate(commentsdata.comments.get(i).created_at))
+                            .setId(commentsdata.comments.get(i).id)
+                            .setSource(commentsdata.comments.get(i).source)
+                            .setWbId(id);
                     data.add(fdata);
                 }
                 StaticData.getInstance().cdata.addAll(data);

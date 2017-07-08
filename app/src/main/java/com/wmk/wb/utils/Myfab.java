@@ -84,17 +84,13 @@ public class Myfab extends View {
         {
             case MotionEvent.ACTION_UP:
             {
-                int x = (int) event.getX();
-                int y = (int) event.getY();
-                result=TouchMethod(x, y,false);
+                result=TouchMethod((int)event.getX(), (int)event.getY(),false);
                 downflag=true;
                 break;
             }
             case MotionEvent.ACTION_DOWN:
             {
-                int x = (int) event.getX();
-                int y = (int) event.getY();
-                result=TouchMethod(x, y,true);
+                result=TouchMethod((int)event.getX(), (int)event.getY(),true);
                 break;
             }
         }
@@ -125,10 +121,6 @@ public class Myfab extends View {
         }
         else
             return false;
-    }
-    public void addheight(int height)
-    {
-        this.height=height;
     }
     @Override
     protected void onDraw(Canvas canvas) {
@@ -168,14 +160,10 @@ public class Myfab extends View {
         }
 
         if(rect>=yy-xx) {
-            ClickRegion.setEmpty();
-            ClickRegion.set(getLeft(),getTop(),getRight(),getBottom());
             clearAnimation();
             isShow=true;
         }
         else if(rect==0) {
-            ClickRegion.setEmpty();
-            ClickRegion.set(getLeft(),getTop(),getRight(),getBottom());
             isShow=false;
             clearAnimation();
         }
@@ -183,12 +171,11 @@ public class Myfab extends View {
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        int width=0;
-        int height=0;
-        if(MeasureSpec.getMode(widthMeasureSpec)==MeasureSpec.EXACTLY)
-            width=MeasureSpec.getSize(widthMeasureSpec);
-        if(MeasureSpec.getMode(heightMeasureSpec)==MeasureSpec.EXACTLY)
-            height=MeasureSpec.getSize(heightMeasureSpec);
+        int width;
+        int height;
+
+        width=MeasureSpec.getSize(widthMeasureSpec);
+        height=MeasureSpec.getSize(heightMeasureSpec);
 
         width=width>height?height:width;//取较小的
         height=height>width?width:height;

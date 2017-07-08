@@ -45,8 +45,8 @@ public class MainListAdapter extends RecyclerView.Adapter  {
 
     @Override
     public int getItemCount() {
-        if (StaticData.getInstance().getData() != null)
-            return StaticData.getInstance().getData().size();
+        if (StaticData.getInstance().getData() != null&&StaticData.getInstance().getData().size()!=0)
+            return StaticData.getInstance().getData().size() + 1;
         else
             return 0;
     }
@@ -69,6 +69,13 @@ public class MainListAdapter extends RecyclerView.Adapter  {
                         false),mSubscriber);
                 return mainviewholder;
             }
+            case 2:
+            {
+                MainViewHolder3 mainviewholder = new MainViewHolder3(LayoutInflater.from(
+                        mContext).inflate(R.layout.loading_item, parent,
+                        false),mSubscriber);
+                return mainviewholder;
+            }
         }
         return null;
 
@@ -77,7 +84,9 @@ public class MainListAdapter extends RecyclerView.Adapter  {
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         LinearLayoutManager manager;
-        FinalViewData data=StaticData.getInstance().getData().get(position);
+        FinalViewData data=null;
+        if(position!=getItemCount()-1)
+            data=StaticData.getInstance().getData().get(position);
         switch(getItemViewType(position))
         {
             case 0:
@@ -122,6 +131,8 @@ public class MainListAdapter extends RecyclerView.Adapter  {
 
     @Override
     public int getItemViewType(int position) {
+        if(position==getItemCount()-1)
+            return 2;
         if(StaticData.getInstance().getData().get(position).getRet_text() == null)
         {
             return 0;

@@ -13,6 +13,7 @@ import android.widget.Toast;
 import com.stylingandroid.prism.Prism;
 import com.wmk.wb.R;
 import com.wmk.wb.presenter.SendCommentAC;
+import com.wmk.wb.utils.ColorThemeUtils;
 import com.wmk.wb.view.Interface.ISendComment;
 
 import butterknife.BindView;
@@ -94,7 +95,7 @@ public class SendCommentActivity extends AppCompatActivity implements ISendComme
 
     @Override
     protected void onResume() {
-        prism.setColor(getResources().getColor(instance.getThemeColor()));
+        prism.setColor(getResources().getColor(ColorThemeUtils.getColor(instance.getThemeColor())));
         super.onResume();
     }
 

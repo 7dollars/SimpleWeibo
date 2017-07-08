@@ -30,8 +30,6 @@ import rx.Subscriber;
  */
 
 public class MainAC extends BasePresenter{
-    private AMapLocationClient locationClient = null;
-    private AMapLocationClientOption locationOption = null;
     private IMain instance;
     private Subscriber<WbData> mSubscribe;
     public MainAC(IMain instance) {
@@ -52,6 +50,7 @@ public class MainAC extends BasePresenter{
                     } else {
                         instance.setRefresh(false, false);
                     }
+                    instance.setLoadMore(false);
                     instance.notifyListChange();
                 }
 
@@ -59,6 +58,8 @@ public class MainAC extends BasePresenter{
             public void onError(Throwable e) {
                 instance.setRefresh(false, false);
                 instance.showToast("刷新失败");
+                instance.setLoadingFaild();
+                instance.setLoadMore(false);
             }
             @Override
             public void onNext(WbData wbData) {
@@ -248,5 +249,8 @@ public class MainAC extends BasePresenter{
         StaticData.getInstance().setThemecolor(color);
     }
 
-
+    public StaticData getStaticData()
+    {
+        return  StaticData.getInstance();
+    }
 }

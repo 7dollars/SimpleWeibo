@@ -19,6 +19,7 @@ import com.stylingandroid.prism.Prism;
 import com.wmk.wb.R;
 
 import com.wmk.wb.presenter.DetialAC;
+import com.wmk.wb.utils.ColorThemeUtils;
 import com.wmk.wb.view.Interface.IDetial;
 import com.wmk.wb.view.fragment.CommentsFragment;
 import com.wmk.wb.view.fragment.DetialFragment;
@@ -136,7 +137,7 @@ public class DetialActivity extends AppCompatActivity implements DetialFragment.
 
     @Override
     protected void onResume() {
-        prism.setColor(getResources().getColor(instance.getThemeColor()));
+        prism.setColor(getResources().getColor(ColorThemeUtils.getColor(instance.getThemeColor())));
         super.onResume();
     }
 

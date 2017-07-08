@@ -1,6 +1,7 @@
 package com.wmk.wb.view.Interface;
 
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import me.xiaopan.sketch.SketchImageView;
 import uk.co.senab.photoview.PhotoView;
@@ -10,5 +11,5 @@ import uk.co.senab.photoview.PhotoView;
  */
 
 public interface IImage {
-    void loadPic(int position, SketchImageView img);
+    void loadPic(int position, SketchImageView img, final TextView loading);
 }

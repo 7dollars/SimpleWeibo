@@ -14,6 +14,7 @@ import com.stylingandroid.prism.Prism;
 import com.wmk.wb.R;
 import com.wmk.wb.presenter.ColorSelectAC;
 import com.wmk.wb.presenter.adapter.ColorSelectAdapter;
+import com.wmk.wb.utils.ColorThemeUtils;
 import com.wmk.wb.utils.SpUtil;
 
 import java.util.List;
@@ -24,8 +25,6 @@ import butterknife.ButterKnife;
 public class ColorSelectActivity extends AppCompatActivity {
 
     private Prism prism;
-    private int [] color={R.color.colorPrimary,R.color.primaryColor,R.color.colorAccent,R.color.md_grey_600,
-                          R.color.md_green_800};
     private ColorSelectAC instance;
 
     @BindView(R.id.grid)
@@ -58,9 +57,9 @@ public class ColorSelectActivity extends AppCompatActivity {
         grid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                SpUtil.putInt(ColorSelectActivity.this,"themecolor",color[position]);
-                instance.setTheme(color[position]);
-                prism.setColor(getResources().getColor(color[position]));
+                SpUtil.putInt(ColorSelectActivity.this,"themecolor",position);
+                instance.setTheme(position);
+                prism.setColor(getResources().getColor(ColorThemeUtils.getColor(position)));
                 finish();
             }
         });
@@ -68,7 +67,7 @@ public class ColorSelectActivity extends AppCompatActivity {
 
     @Override
     protected void onResume() {
-        prism.setColor(getResources().getColor(instance.getThemeColor()));
+        prism.setColor(getResources().getColor(ColorThemeUtils.getColor(instance.getThemeColor())));
         super.onResume();
     }
 

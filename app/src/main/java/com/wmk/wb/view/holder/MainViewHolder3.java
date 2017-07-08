@@ -4,11 +4,13 @@ import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.wmk.wb.R;
 import com.wmk.wb.model.bean.DetialsInfo;
+import com.wmk.wb.model.bean.LoadingBus;
 import com.wmk.wb.model.bean.NameEvent;
 import com.wmk.wb.utils.ClickMovementMethod;
 
@@ -31,6 +33,8 @@ public class MainViewHolder3 extends RecyclerView.ViewHolder{
     public RecyclerView pic_view;
     public TextView reposts_comments_count;
     public TextView reposts_comments_ret;
+    public TextView loading;
+    public LinearLayout loadingLayout;
 
     public CardView cv;
     public CardView cv_ret;
@@ -43,15 +47,19 @@ public class MainViewHolder3 extends RecyclerView.ViewHolder{
         pic_view=(RecyclerView)itemView.findViewById(R.id.list_pic);
         cv=(CardView)itemView.findViewById(R.id.main);
         cv_ret=(CardView)itemView.findViewById(R.id.comment);
-        head.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                EventBus.getDefault().post(new NameEvent(author.getText().toString()));
-            }
-        });
-        content.setOnTouchListener(ClickMovementMethod.getInstance());
-
-        cv.setOnClickListener(new View.OnClickListener() {
+        loading=(TextView)itemView.findViewById(R.id.loading_item);
+        loadingLayout=(LinearLayout)itemView.findViewById(R.id.loading_layout);
+        if(head!=null) {
+            head.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    EventBus.getDefault().post(new NameEvent(author.getText().toString()));
+                }
+            });
+            content.setOnTouchListener(ClickMovementMethod.getInstance());
+        }
+        if(cv!=null)
+            cv.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
@@ -88,6 +96,24 @@ public class MainViewHolder3 extends RecyclerView.ViewHolder{
                         }
                     });
                     observable.subscribe(mSubscriber);
+                }
+            });
+        }
+        if(loadingLayout!=null) {
+            LoadingBus lb = new LoadingBus();
+            lb.setLoading(loading);
+            lb.setPress(false);
+            EventBus.getDefault().post(lb);
+            loadingLayout.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (!loading.getText().equals("加载中···")) {
+                        LoadingBus lb = new LoadingBus();
+                        lb.setLoading(loading);
+                        lb.setPress(true);
+                        loading.setText("加载中···");
+                        EventBus.getDefault().post(lb);
+                    }
                 }
             });
         }

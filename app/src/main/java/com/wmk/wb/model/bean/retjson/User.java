@@ -19,6 +19,18 @@ public class User {
     @SerializedName("profile_image_url")
     public String profile_image_url;
 
+    @SerializedName("gender")
+    public String gender;
+
+    @SerializedName("followers_count")
+    public String followers_count;
+
+    @SerializedName("friends_count")
+    public String friends_count;
+
+    @SerializedName("statuses_count")
+    public String statuses_count;
+
     public String getAvatar_large() {
         if(avatar_large!=null)
             return avatar_large;
@@ -36,16 +48,18 @@ public class User {
             return "未获取";
     }
 
-    public void setName(String name) {
+    public User setName(String name) {
         this.name = name;
+        return this;
     }
 
     public String getDescription() {
         return description;
     }
 
-    public void setDescription(String description) {
+    public User setDescription(String description) {
         this.description = description;
+        return this;
     }
 
     public String getProfile_image_url() {
@@ -54,5 +68,21 @@ public class User {
 
     public void setProfile_image_url(String profile_image_url) {
         this.profile_image_url = profile_image_url;
+    }
+
+    public String getGender() {
+        return gender;
+    }
+
+    public String getFollowers_count() {
+        return followers_count;
+    }
+
+    public String getFriends_count() {
+        return friends_count;
+    }
+
+    public String getStatuses_count() {
+        return statuses_count;
     }
 }

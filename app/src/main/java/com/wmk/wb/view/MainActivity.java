@@ -3,6 +3,7 @@ package com.wmk.wb.view;
 import android.app.ActivityOptions;
 import android.content.Intent;
 import android.graphics.Color;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -38,6 +39,7 @@ import com.mikepenz.materialdrawer.model.interfaces.IProfile;
 import com.squareup.leakcanary.LeakCanary;
 import com.stylingandroid.prism.Prism;
 import com.wmk.wb.R;
+import com.wmk.wb.model.bean.LoadingBus;
 import com.wmk.wb.model.bean.LocationBean;
 import com.wmk.wb.model.bean.NameEvent;
 import com.wmk.wb.model.bean.Pic_List_Info;
@@ -45,6 +47,7 @@ import com.wmk.wb.model.bean.DetialsInfo;
 import com.wmk.wb.model.StaticData;
 import com.wmk.wb.model.bean.TagEvent;
 import com.wmk.wb.model.bean.retjson.User;
+import com.wmk.wb.utils.ColorThemeUtils;
 import com.wmk.wb.utils.EndlessRecyclerOnScrollListener;
 import com.wmk.wb.presenter.MainAC;
 import com.wmk.wb.presenter.adapter.MainListAdapter;
@@ -97,6 +100,10 @@ public class MainActivity extends AppCompatActivity implements IMain,Myfab.MenuL
     private CircleImageView head;
 
     private Prism prism;
+    private boolean isActive;
+
+    private TextView loadingtxt;
+    private boolean LoadMoreFlag=false;//是否正在加载，防止多次加载请求
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -148,7 +155,14 @@ public class MainActivity extends AppCompatActivity implements IMain,Myfab.MenuL
         }
         return super.onKeyDown(keyCode, event);
     }
-///////////////////////////////////////////////
+
+    @Override
+    protected void onPause() {
+        isActive=false;
+        super.onPause();
+    }
+
+    ///////////////////////////////////////////////
     //toolbar菜单
 ///////////////////////////////////////////////
     @Override
@@ -234,14 +248,14 @@ public class MainActivity extends AppCompatActivity implements IMain,Myfab.MenuL
                         {
                             case 1:
                             {
-                                StaticData.getInstance().setWbFlag(0);
+                                instance.getStaticData().getInstance().setWbFlag(0);
                                 setTitle("所有内容");
                                 commentflag=1;
                                 break;
                             }
                             case 2:
                             {
-                                StaticData.getInstance().setWbFlag(1);
+                                instance.getStaticData().getInstance().setWbFlag(1);
                                 setTitle("相互关注");
                                 commentflag=1;
                                 break;
@@ -255,21 +269,21 @@ public class MainActivity extends AppCompatActivity implements IMain,Myfab.MenuL
                             }
                             case 5:
                             {
-                                StaticData.getInstance().setWbFlag(3);
+                                instance.getStaticData().getInstance().setWbFlag(3);
                                 setTitle("提到我的");
                                 commentflag=1;
                                 break;
                             }
                             case 7:
                             {
-                                StaticData.getInstance().setWbFlag(4);
+                                instance.getStaticData().getInstance().setWbFlag(4);
                                 commentflag=2;
                                 setTitle("收到回复");
                                 break;
                             }
                             case 8:
                             {
-                                StaticData.getInstance().setWbFlag(5);
+                                instance.getStaticData().getInstance().setWbFlag(5);
                                 commentflag=2;
                                 setTitle("提到我的回复");
                                 break;
@@ -325,8 +339,9 @@ public class MainActivity extends AppCompatActivity implements IMain,Myfab.MenuL
         EndlessRecyclerOnScrollListener end=new EndlessRecyclerOnScrollListener(manager) {
             @Override
             public void onLoadMore(int currentPage) {
-                if (StaticData.getInstance().getData().size() > 0)
+                if (StaticData.getInstance().getData().size() > 0&&LoadMoreFlag==false)
                 {
+                    LoadMoreFlag=true;
                     instance.getWbData(StaticData.getInstance().getData().get(StaticData.getInstance().getData().size()-1).getId(),commentflag,"",LocationBean.getInstance());
                 }
             }
@@ -359,10 +374,16 @@ public class MainActivity extends AppCompatActivity implements IMain,Myfab.MenuL
 
     @Override
     protected void onResume() {
-        RlHeader.setBackgroundColor(getResources().getColor(instance.getThemeColor()));
-        fabtn.setColor(getResources().getColor(instance.getThemeColor()));
-        prism.setColor(getResources().getColor(instance.getThemeColor()));
-        instance.setPersonalFlag(false);
+        try {
+            RlHeader.setBackgroundColor(ContextCompat.getColor(this, ColorThemeUtils.getColor(instance.getThemeColor())));
+            fabtn.setColor(ContextCompat.getColor(this,ColorThemeUtils.getColor(instance.getThemeColor())));
+            prism.setColor(ContextCompat.getColor(this,ColorThemeUtils.getColor(instance.getThemeColor())));
+            instance.setPersonalFlag(false);
+        }
+        catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        isActive=true;
         super.onResume();
     }
 
@@ -375,7 +396,6 @@ public class MainActivity extends AppCompatActivity implements IMain,Myfab.MenuL
     public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId())
         {
-
             case android.R.id.home:
             {
                 dw.openDrawer();
@@ -486,6 +506,17 @@ public void click(int i) {
         setTitle(title);
     }
 
+    @Override
+    public void setLoadingFaild() {
+        if(loadingtxt!=null)
+            loadingtxt.setText("加载失败，请点击重试");
+    }
+
+    @Override
+    public void setLoadMore(boolean loadmore) {
+        LoadMoreFlag=loadmore;
+    }
+
     @Subscribe
     public void onEventMainThread(NameEvent event) {
         Intent intent=new Intent();
@@ -504,15 +535,24 @@ public void click(int i) {
         instance.setTopicFlag(true);
         startActivity(intent);
     }
+    @Subscribe
+    public void onEventMainThread(LoadingBus event) {
+        if(!isActive)
+            return;
+        loadingtxt=event.getLoading();
+        if(!event.isPress())
+            return;
+        if (StaticData.getInstance().getData().size() > 0) {
+            instance.getWbData(StaticData.getInstance().getData().get(StaticData.getInstance().getData().size()-1).getId(),commentflag,"",LocationBean.getInstance());
+        }
+        else {
+            instance.getWbData(0,commentflag,"",null);
+        }
+    }
     public void setStaticThemColor()
     {
         int color=SpUtil.getInt(this,"themecolor",0);
-        if(color==0) {
-            SpUtil.putInt(this, "themecolor", R.color.colorPrimary);
-            instance.setStaticColor(R.color.colorPrimary);
-        }
-        else
-            instance.setStaticColor(color);
+        instance.setStaticColor(color);
     }
 
     @Override
@@ -522,7 +562,7 @@ public void click(int i) {
         {
             case R.id.sc:
             {
-                StaticData.getInstance().setWbFlag(6);
+                instance.getStaticData().getInstance().setWbFlag(6);
                 setTitle("收藏");
                 commentflag=3;
                 dw.closeDrawer();
@@ -534,16 +574,6 @@ public void click(int i) {
             }
             case R.id.zb:
             {
-              /*  LocationBean bean=LocationBean.getInstance();
-                StaticData.getInstance().setWbFlag(7);
-                setTitle("周边");
-                instance.initLocation(getApplicationContext());
-                commentflag=1;
-                dw.closeDrawer();
-                swipe.setRefreshing(true);
-                instance.getWbData(0,commentflag,"",bean);
-                main_list.scrollToPosition(0);
-                main_list.smoothScrollToPosition(0);*/
               Intent intent=new Intent();
               intent.setClass(MainActivity.this,ExploreActivity.class);
               startActivity(intent);
@@ -551,7 +581,7 @@ public void click(int i) {
             }
             case R.id.ts:
             {
-                StaticData.getInstance().setWbFlag(8);
+                instance.getStaticData().getInstance().setWbFlag(8);
                 setTitle("热门微博");
                 commentflag=1;
                 dw.closeDrawer();

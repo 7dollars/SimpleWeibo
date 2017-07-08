@@ -51,6 +51,7 @@ public class DetialFragment extends Fragment implements IDetialFG{
 
     private TextView ret_content;
     private TextView count_ret;
+    private RecyclerView list_pic_ret;
 
     private long id;
 
@@ -176,7 +177,7 @@ public class DetialFragment extends Fragment implements IDetialFG{
         this.count.setText(count);
         this.time.setText(time);
         this.count_ret.setText(count_ret);
-        this.ret_content.setText(ret_content);
+        this.ret_content.setText(TextUtils.getWeiBoText(getContext(),ret_content));
         final String au=author;
         this.head.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -189,22 +190,21 @@ public class DetialFragment extends Fragment implements IDetialFG{
     public void setPic(boolean flag,FinalViewData fdata) {
         if(flag) {
             Glide.with(getActivity()).load(fdata.getHeadurl()).into(head);
-            if (fdata.getRet_picurls() != null) {
-                LinearLayoutManager manager = new LinearLayoutManager(list_pic.getContext());
-                manager.setOrientation(LinearLayoutManager.HORIZONTAL);
-                list_pic.setLayoutManager(manager);
-                list_pic.setAdapter(new PicListAdapter(getActivity(), fdata.getPicurls(), 0, instance.getPicSubscriber()));
-            }
         }
-        else
-        {
+        else {
             Glide.with(getActivity()).load(fdata.getRet_headurl()).into(head);
-            if (fdata.getRet_picurls() != null) {
-                LinearLayoutManager manager = new LinearLayoutManager(list_pic.getContext());
-                manager.setOrientation(LinearLayoutManager.HORIZONTAL);
-                list_pic.setLayoutManager(manager);
-                list_pic.setAdapter(new PicListAdapter(getActivity(), fdata.getRet_picurls(), 0, instance.getPicSubscriber()));
-            }
+        }
+        if (fdata.getPicurls().size() != 0) {
+            LinearLayoutManager manager = new LinearLayoutManager(list_pic.getContext());
+            manager.setOrientation(LinearLayoutManager.HORIZONTAL);
+            list_pic.setLayoutManager(manager);
+            list_pic.setAdapter(new PicListAdapter(getActivity(), fdata.getPicurls(), 0, instance.getPicSubscriber()));
+        }
+        if (fdata.getRet_picurls().size() != 0) {
+            LinearLayoutManager manager = new LinearLayoutManager(list_pic.getContext());
+            manager.setOrientation(LinearLayoutManager.HORIZONTAL);
+            list_pic.setLayoutManager(manager);
+            list_pic.setAdapter(new PicListAdapter(getActivity(), fdata.getRet_picurls(), 0, instance.getPicSubscriber()));
         }
     }
 

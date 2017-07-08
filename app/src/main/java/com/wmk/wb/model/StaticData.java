@@ -17,7 +17,7 @@ import java.util.List;
 //一些全局的数据，如ListView用的数据包，和Context
 public class StaticData {
 
-    private boolean personalflag=false;
+    private int personalflag=0;
     private boolean expflag=false;
     private boolean topicflag=false;
     private int themecolor= R.color.colorPrimary;
@@ -66,11 +66,17 @@ public class StaticData {
     }
 
     public boolean isPersonalflag() {
-        return personalflag;
+        if(personalflag>0)
+            return true;
+        else
+            return false;
     }
 
     public void setPersonalflag(boolean personalflag) {
-        this.personalflag = personalflag;
+        if(personalflag)
+        this.personalflag += 1;
+        else
+            this.personalflag=this.personalflag>0?--this.personalflag:0;
     }
     public StaticData() {
         WbFlag=0;
@@ -89,8 +95,9 @@ public class StaticData {
             else
                 return Expdata;
         }
-        else
+        else {
             return Personaldata;
+        }
     }
 
     public void setData(List<FinalViewData> data) {

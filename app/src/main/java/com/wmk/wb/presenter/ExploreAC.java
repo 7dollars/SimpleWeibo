@@ -17,6 +17,7 @@ import com.wmk.wb.model.bean.DetialsInfo;
 import com.wmk.wb.model.bean.FinalViewData;
 import com.wmk.wb.model.bean.LocationBean;
 import com.wmk.wb.model.bean.Pic_List_Info;
+import com.wmk.wb.model.bean.RegionInfo;
 import com.wmk.wb.model.bean.retjson.Statuses;
 import com.wmk.wb.model.bean.retjson.WbData;
 import com.wmk.wb.utils.ConvertDate;
@@ -186,23 +187,23 @@ public class ExploreAC extends BasePresenter implements GeocodeSearch.OnGeocodeS
             @Override
             public void onCompleted() {
                 ExploreAC.this.instance.setRefresh(false, false);
-
+                instance.setLoadMore(false);
                 ExploreAC.this. instance.notifyListChange();
             }
 
             @Override
             public void onError(Throwable e) {
-                if(dataflag==1)
-                {
+                if(dataflag==1) {
                     ExploreAC.this.instance.showToast("这里并没有微博...再重新试试？");
                 }
-                else
-                {
+                else {
                     ExploreAC.this.instance.showToast("刷新失败");
                 }
-                StaticData.getInstance().Expdata = new ArrayList<>();
+                instance.setLoadMore(false);
+                instance.setLoadingFaild();
+ //               StaticData.getInstance().Expdata = new ArrayList<>();
                 ExploreAC.this.instance.setRefresh(false, false);
-                instance.notifyListChange();
+//                instance.notifyListChange();
 
             }
             @Override
@@ -301,24 +302,24 @@ public class ExploreAC extends BasePresenter implements GeocodeSearch.OnGeocodeS
         }
     }
 
-    public void getRandomData(long max_id)
+    public void getRandomData(long max_id, RegionInfo ri)
     {
         dataflag=1;
         this.max_id=max_id;
         initsub();
         Random random = new Random();
         StaticData.getInstance().setWbFlag(7);
-        double Lat1,Long1;
-        Lat1=(double)(random.nextInt(40)%(40-22+1) + 22);
-        Long1=(double)(random.nextInt(122)%(122-105+1) + 105);
-        Lat1+=(double)(random.nextInt(999999)%(999999-111111+1) + 111111)/1000000;
-        Long1+=(double)(random.nextInt(999999)%(999999-111111+1) + 111111)/1000000;
-        String Lat=String.valueOf(Lat1);
-        String Long=String.valueOf(Long1);
-        LocationBean.getInstance().setLat(Lat);
-        LocationBean.getInstance().setLong(Long);
-        LocationBean.getInstance().setRange(3000);
-        llp=new LatLonPoint(Lat1,Long1);
+
+        if(ri!=null) {
+            String Lat = String.valueOf(ri.getLat());
+            String Long = String.valueOf(ri.getLong());
+            LocationBean.getInstance().setdLat(ri.getLat());
+            LocationBean.getInstance().setdLong(ri.getLong());
+            LocationBean.getInstance().setLat(Lat);
+            LocationBean.getInstance().setLong(Long);
+            LocationBean.getInstance().setRange(3000);
+        }
+        llp=new LatLonPoint(LocationBean.getInstance().getdLat(),LocationBean.getInstance().getdLong());
         RegeocodeQuery query = new RegeocodeQuery(llp, 200,GeocodeSearch.AMAP);
         geocoderSearch.getFromLocationAsyn(query);
     }

@@ -24,6 +24,12 @@ public class FinalViewData {
     public String time;
     public String ret_time;
 
+    public String description;
+    public String gender;
+    public String followers_count;
+    public String friends_count;
+    public String statuses_count;
+
     public FinalViewData() {
         picurls=new ArrayList<>();
         ret_picurls=new ArrayList<>();
@@ -176,5 +182,50 @@ public class FinalViewData {
     public FinalViewData setRet_id(long ret_id) {
         this.ret_id = ret_id;
         return  this;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public FinalViewData setDescription(String description) {
+        this.description = description;
+        return this;
+    }
+
+    public String getGender() {
+        return gender;
+    }
+
+    public FinalViewData setGender(String gender) {
+        this.gender = gender;
+        return this;
+    }
+
+    public String getFollowers_count() {
+        return followers_count;
+    }
+
+    public FinalViewData setFollowers_count(String followers_count) {
+        this.followers_count = followers_count;
+        return this;
+    }
+
+    public String getFriends_count() {
+        return friends_count;
+    }
+
+    public FinalViewData setFriends_count(String friends_count) {
+        this.friends_count = friends_count;
+        return this;
+    }
+
+    public String getStatuses_count() {
+        return statuses_count;
+    }
+
+    public FinalViewData setStatuses_count(String statuses_count) {
+        this.statuses_count = statuses_count;
+        return this;
     }
 }

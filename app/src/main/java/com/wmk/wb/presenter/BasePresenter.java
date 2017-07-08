@@ -14,11 +14,8 @@ import com.wmk.wb.utils.SpUtil;
  */
 
 public class BasePresenter {
-
     public int getThemeColor()
     {
         return StaticData.getInstance().getThemecolor();
     }
-
-
 }

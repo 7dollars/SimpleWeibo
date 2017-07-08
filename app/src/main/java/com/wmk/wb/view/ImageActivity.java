@@ -32,9 +32,6 @@ public class ImageActivity extends AppCompatActivity implements IImage {
     @BindView(R.id.viewpager)
     ViewPager pager;
 
-    @BindView(R.id.textView2)
-    TextView loading;
-
     private ArrayList<String> pic_list;
     private int position;
 
@@ -45,7 +42,7 @@ public class ImageActivity extends AppCompatActivity implements IImage {
         setContentView(R.layout.activity_image);
         ButterKnife.bind(this);
 
-        loading.setVisibility(View.VISIBLE);
+        //loading.setVisibility(View.VISIBLE);
         Intent intent=getIntent();
         pic_list=intent.getStringArrayListExtra("Largeurl");
         position=intent.getIntExtra("position",0);
@@ -68,7 +65,7 @@ public class ImageActivity extends AppCompatActivity implements IImage {
     }
 
     @Override
-    public void loadPic(int position, SketchImageView img) {
+    public void loadPic(int position, SketchImageView img,final TextView loading) {
      /*   Glide.with(ImageActivity.this)
                 .load(pic_list.get(position))
                 .crossFade()
@@ -86,7 +83,6 @@ public class ImageActivity extends AppCompatActivity implements IImage {
 
          @Override
          public void onError(ErrorCause errorCause) {
-
          }
 
          @Override
