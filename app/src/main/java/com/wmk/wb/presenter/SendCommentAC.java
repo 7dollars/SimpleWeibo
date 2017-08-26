@@ -1,7 +1,11 @@
 package com.wmk.wb.presenter;
 
+import android.util.Log;
+
 import com.wmk.wb.model.DataManager;
 import com.wmk.wb.model.StaticData;
+import com.wmk.wb.model.WbDataStack;
+import com.wmk.wb.model.bean.retjson.WbData;
 import com.wmk.wb.view.Interface.ISendComment;
 
 import okhttp3.ResponseBody;
@@ -78,9 +82,11 @@ public class SendCommentAC  extends BasePresenter{
             switch(flag) {
                 case 0: {
                     if(!isRet) {
-                        if (StaticData.getInstance().getData().get(position).getText() != null && StaticData.getInstance().getData().get(position).getRet_text() != null)
-                            DataManager.getInstance().relay(mSubscriber, id, text.toString() + "//@" + StaticData.getInstance().getData().get(position).getName() +
-                                    ":" + StaticData.getInstance().getData().get(position).getText());
+                        if (WbDataStack.getInstance().getTop().getData().get(position).getText() != null && WbDataStack.getInstance().getTop().getData().get(position).getRet_text() != null)
+                            DataManager.getInstance().relay(mSubscriber, id, text.toString() + "//@" + WbDataStack.getInstance().getTop().getData().get(position).getName() +
+                                    ":" + WbDataStack.getInstance().getTop().getData().get(position).getText());
+                        else DataManager.getInstance().relay(mSubscriber, id, text.toString());
+
                     }
                     else
                         DataManager.getInstance().relay(mSubscriber, id, text.toString());

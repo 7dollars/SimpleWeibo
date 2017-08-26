@@ -2,22 +2,16 @@ package com.wmk.wb.view.holder;
 
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.wmk.wb.R;
 import com.wmk.wb.model.bean.DetialsInfo;
-import com.wmk.wb.model.bean.LoadingBus;
-import com.wmk.wb.model.bean.NameEvent;
-import com.wmk.wb.utils.ClickMovementMethod;
-
-import org.greenrobot.eventbus.EventBus;
+import com.wmk.wb.utils.NinePicLayout;
+import com.wmk.wb.utils.StaticLayoutView;
 
 import de.hdodenhof.circleimageview.CircleImageView;
-import rx.Observable;
 import rx.Subscriber;
 
 /**
@@ -35,6 +29,7 @@ public class MainViewHolder3 extends RecyclerView.ViewHolder{
     public TextView reposts_comments_ret;
     public TextView loading;
     public LinearLayout loadingLayout;
+    public NinePicLayout nine;
 
     public CardView cv;
     public CardView cv_ret;
@@ -44,87 +39,13 @@ public class MainViewHolder3 extends RecyclerView.ViewHolder{
         time = (TextView) itemView.findViewById(R.id.txt_time);
         content = (TextView) itemView.findViewById(R.id.txt_content);
         head = (CircleImageView) itemView.findViewById(R.id.imageView);
-        pic_view=(RecyclerView)itemView.findViewById(R.id.list_pic);
+     //   pic_view=(RecyclerView)itemView.findViewById(R.id.list_pic);
         cv=(CardView)itemView.findViewById(R.id.main);
         cv_ret=(CardView)itemView.findViewById(R.id.comment);
         loading=(TextView)itemView.findViewById(R.id.loading_item);
+        nine=(NinePicLayout)itemView.findViewById(R.id.nineLayout);
         loadingLayout=(LinearLayout)itemView.findViewById(R.id.loading_layout);
-        if(head!=null) {
-            head.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    EventBus.getDefault().post(new NameEvent(author.getText().toString()));
-                }
-            });
-            content.setOnTouchListener(ClickMovementMethod.getInstance());
-        }
-        if(cv!=null)
-            cv.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
 
-                final DetialsInfo detialsInfo=new DetialsInfo();
-                if(cv_ret!=null)
-                    detialsInfo.setHasChild(true);
-                detialsInfo.setPosition(getPosition());
-                detialsInfo.setRet(false);
-                detialsInfo.setRe(itemView);
-
-                Observable<DetialsInfo> observable=Observable.create(new Observable.OnSubscribe<DetialsInfo>() {
-                    @Override
-                    public void call(Subscriber<? super DetialsInfo> subscriber) {
-                        subscriber.onNext(detialsInfo);
-                    }
-                });
-                observable.subscribe(mSubscriber);
-            }
-        });
-
-        if(cv_ret!=null) {
-            cv_ret.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    final DetialsInfo detialsInfo=new DetialsInfo();
-                    detialsInfo.setPosition(getPosition());
-                    detialsInfo.setRet(true);
-                    detialsInfo.setRe(itemView);
-
-                    Observable<DetialsInfo> observable=Observable.create(new Observable.OnSubscribe<DetialsInfo>() {
-                        @Override
-                        public void call(Subscriber<? super DetialsInfo> subscriber) {
-                            subscriber.onNext(detialsInfo);
-                        }
-                    });
-                    observable.subscribe(mSubscriber);
-                }
-            });
-        }
-        if(loadingLayout!=null) {
-            LoadingBus lb = new LoadingBus();
-            lb.setLoading(loading);
-            lb.setPress(false);
-            EventBus.getDefault().post(lb);
-            loadingLayout.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (!loading.getText().equals("加载中···")) {
-                        LoadingBus lb = new LoadingBus();
-                        lb.setLoading(loading);
-                        lb.setPress(true);
-                        loading.setText("加载中···");
-                        EventBus.getDefault().post(lb);
-                    }
-                }
-            });
-        }
-        if(itemView.findViewById(R.id.ret_content)!=null)
-        {
-            ret_content = (TextView) itemView.findViewById(R.id.ret_content);
-            reposts_comments_ret=(TextView)itemView.findViewById(R.id.count_ret);
-
-            ret_content.setOnTouchListener(ClickMovementMethod.getInstance());
-        }
-        reposts_comments_count=(TextView)itemView.findViewById(R.id.count);
 
     }
 

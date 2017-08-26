@@ -29,9 +29,11 @@ import android.widget.Toast;
 import com.amap.api.services.geocoder.GeocodeResult;
 import com.amap.api.services.geocoder.GeocodeSearch;
 import com.amap.api.services.geocoder.RegeocodeResult;
+import com.bumptech.glide.Glide;
 import com.stylingandroid.prism.Prism;
 import com.wmk.wb.R;
 import com.wmk.wb.model.StaticData;
+import com.wmk.wb.model.WbDataStack;
 import com.wmk.wb.model.bean.DetialsInfo;
 import com.wmk.wb.model.bean.LoadingBus;
 import com.wmk.wb.model.bean.LocationBean;
@@ -45,6 +47,8 @@ import com.wmk.wb.utils.EndlessRecyclerOnScrollListener;
 import com.wmk.wb.utils.Myfab;
 import com.wmk.wb.utils.RegionEnum;
 import com.wmk.wb.utils.RegionUtil;
+import com.wmk.wb.utils.WrapContentLinearLayoutManager;
+import com.wmk.wb.utils.XRecyclerView;
 import com.wmk.wb.view.Interface.IExplore;
 
 import org.greenrobot.eventbus.EventBus;
@@ -57,7 +61,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import rx.Subscriber;
 
-public class ExploreActivity extends AppCompatActivity implements IExplore ,View.OnClickListener ,Myfab.MenuListener {
+public class ExploreActivity extends BaseActivity implements IExplore ,View.OnClickListener ,Myfab.MenuListener {
     @Override
     protected void onPause() {
         isActive=false;
@@ -76,7 +80,7 @@ public class ExploreActivity extends AppCompatActivity implements IExplore ,View
     SwipeRefreshLayout swipe;
 
     @BindView(R.id.content_list)
-    RecyclerView content_list;
+    XRecyclerView content_list;
 
     @BindView(R.id.tool_bar)
     Toolbar mToolbar;
@@ -115,7 +119,6 @@ public class ExploreActivity extends AppCompatActivity implements IExplore ,View
         ButterKnife.bind(this);
         EventBus.getDefault().register(this);
         instance = new ExploreAC(this);
-        oldflag = StaticData.getInstance().getWbFlag();
 
         List<Integer> list = new ArrayList();
         list.add(R.mipmap.ic_autorenew_white_24dp);
@@ -147,7 +150,7 @@ public class ExploreActivity extends AppCompatActivity implements IExplore ,View
         // setTitle("探索");
 
 
-        LinearLayoutManager manager = new LinearLayoutManager(content_list.getContext());
+        WrapContentLinearLayoutManager manager = new WrapContentLinearLayoutManager(content_list.getContext());
         manager.setOrientation(LinearLayoutManager.VERTICAL);
         content_list.setLayoutManager(manager);
         content_list.setAdapter(explorerAdapter);
@@ -155,9 +158,9 @@ public class ExploreActivity extends AppCompatActivity implements IExplore ,View
         EndlessRecyclerOnScrollListener end = new EndlessRecyclerOnScrollListener(manager) {
             @Override
             public void onLoadMore(int currentPage) {
-                if (StaticData.getInstance().getData().size() > 0&&LoadMoreFlag==false) {
+                if (WbDataStack.getInstance().getTop().getData().size() > 0&&LoadMoreFlag==false) {
                     LoadMoreFlag=true;
-                    instance.getWbData(StaticData.getInstance().getData().get(StaticData.getInstance().getData().size() - 1).getId());
+                    instance.getWbData(ExploreActivity.this,1);
                 }
             }
         };//上拉加载
@@ -170,8 +173,6 @@ public class ExploreActivity extends AppCompatActivity implements IExplore ,View
 
     @Override
     protected void onDestroy() {
-        StaticData.getInstance().setWbFlag(oldflag);
-        StaticData.getInstance().setExpflag(false);
         instance.destroyLocation();
         super.onDestroy();
     }
@@ -192,7 +193,6 @@ public class ExploreActivity extends AppCompatActivity implements IExplore ,View
     protected void onResume() {
         prism.setColor(getResources().getColor(ColorThemeUtils.getColor(instance.getThemeColor())));
         fabtn.setColor(ContextCompat.getColor(this, ColorThemeUtils.getColor(instance.getThemeColor())));
-        StaticData.getInstance().setExpflag(true);
         isActive=true;
         super.onResume();
     }
@@ -201,12 +201,12 @@ public class ExploreActivity extends AppCompatActivity implements IExplore ,View
     {
         if(regionEnum==null) {
             instance.initLocation(getApplicationContext());
-            instance.getWbData(0);         //刷新周围微博
+            instance.getWbData(this,0);         //刷新周围微博
         }
         else
         {
             instance.initGeocode(getApplicationContext());
-            instance.getRandomData(0, RegionUtil.getRegion(regionEnum));     //刷新随便看看
+            instance.getRandomData(this,0, RegionUtil.getRegion(regionEnum));     //刷新随便看看
         }
     }
     @Override
@@ -217,7 +217,7 @@ public class ExploreActivity extends AppCompatActivity implements IExplore ,View
             {
                 regionEnum = null;
                 instance.initLocation(getApplicationContext());
-                instance.getWbData(0);
+                instance.getWbData(this,0);
                 break;
             }
             case R.id.sb://随便走走
@@ -234,67 +234,67 @@ public class ExploreActivity extends AppCompatActivity implements IExplore ,View
                 break;
             }
             case R.id.remen: {
-                instance.getRandomData(0, RegionUtil.getRegion(RegionEnum.random));
+                instance.getRandomData(this,0, RegionUtil.getRegion(RegionEnum.random));
                 regionEnum = RegionEnum.beijing;
                 exitDialog();
                 break;
             }
             case R.id.beijing: {
-                instance.getRandomData(0, RegionUtil.getRegion(RegionEnum.beijing));
+                instance.getRandomData(this,0, RegionUtil.getRegion(RegionEnum.beijing));
                 regionEnum = RegionEnum.beijing;
                 exitDialog();
                 break;
             }
             case R.id.shanghai: {
-                instance.getRandomData(0, RegionUtil.getRegion(RegionEnum.shanghai));
+                instance.getRandomData(this,0, RegionUtil.getRegion(RegionEnum.shanghai));
                 regionEnum = RegionEnum.shanghai;
                 exitDialog();
                 break;
             }
             case R.id.guangzhou: {
-                instance.getRandomData(0, RegionUtil.getRegion(RegionEnum.guangzhou));
+                instance.getRandomData(this,0, RegionUtil.getRegion(RegionEnum.guangzhou));
                 regionEnum = RegionEnum.guangzhou;
                 exitDialog();
                 break;
             }
             case R.id.shenzhen: {
-                instance.getRandomData(0, RegionUtil.getRegion(RegionEnum.shenzhen));
+                instance.getRandomData(this,0, RegionUtil.getRegion(RegionEnum.shenzhen));
                 regionEnum = RegionEnum.shenzhen;
                 exitDialog();
                 break;
             }
             case R.id.hangzhou: {
-                instance.getRandomData(0, RegionUtil.getRegion(RegionEnum.hangzhou));
+                instance.getRandomData(this,0, RegionUtil.getRegion(RegionEnum.hangzhou));
                 regionEnum = RegionEnum.hangzhou;
                 exitDialog();
                 break;
             }
             case R.id.chengdu: {
-                instance.getRandomData(0, RegionUtil.getRegion(RegionEnum.chengdu));
+                instance.getRandomData(this,0, RegionUtil.getRegion(RegionEnum.chengdu));
                 regionEnum = RegionEnum.chengdu;
                 exitDialog();
                 break;
             }
             case R.id.qingdao: {
-                instance.getRandomData(0, RegionUtil.getRegion(RegionEnum.qingdao));
+                instance.getRandomData(this,0, RegionUtil.getRegion(RegionEnum.qingdao));
                 regionEnum = RegionEnum.qingdao;
                 exitDialog();
                 break;
             }
             case R.id.tianjin: {
-                instance.getRandomData(0, RegionUtil.getRegion(RegionEnum.tianjin));
+                instance.getRandomData(this,0, RegionUtil.getRegion(RegionEnum.tianjin));
                 regionEnum = RegionEnum.tianjin;
                 exitDialog();
                 break;
             }
             case R.id.nanjing: {
-                instance.getRandomData(0, RegionUtil.getRegion(RegionEnum.nanjing));
+                instance.getRandomData(this,0, RegionUtil.getRegion(RegionEnum.nanjing));
                 regionEnum = RegionEnum.nanjing;
                 exitDialog();
                 break;
             }
             case R.id.wuhan: {
-                instance.getRandomData(0, RegionUtil.getRegion(RegionEnum.wuhan));
+                instance.getRandomData(this,0, RegionUtil.getRegion(RegionEnum.wuhan));
                 regionEnum = RegionEnum.wuhan;
                 exitDialog();
                 break;
@@ -340,7 +340,6 @@ public class ExploreActivity extends AppCompatActivity implements IExplore ,View
             // nestedScrollView.scrollTo(0,0);
         }
     }
-
     @Override
     public void setAddress(String addr) {
         if (addr == "" || addr == null)
@@ -411,9 +410,9 @@ public class ExploreActivity extends AppCompatActivity implements IExplore ,View
         loadingtxt=event.getLoading();
         if(!event.isPress())
             return;
-        if (StaticData.getInstance().getData().size() > 0&&LoadMoreFlag==false) {
+        if (WbDataStack.getInstance().getTop().getData().size() > 0&&LoadMoreFlag==false) {
             LoadMoreFlag=true;
-            instance.getWbData(StaticData.getInstance().getData().get(StaticData.getInstance().getData().size() - 1).getId());
+            instance.getWbData(this,1);
         }
         else {
             refresh();

@@ -53,8 +53,17 @@ public class PicPagerAdapter extends PagerAdapter {
     }
     private void SaveImageToSysAlbum(SketchImageView img) {
         if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED) ) {
-            BitmapDrawable bmpDrawable = (BitmapDrawable)img.getDrawable();
-            Bitmap bmp = bmpDrawable.getBitmap();
+            BitmapDrawable bmpDrawable=null;
+            Bitmap bmp=null;
+            try {
+                bmpDrawable = (BitmapDrawable) img.getDrawable();
+            }catch (Exception ex) {
+                Toast.makeText(context, "图片获取失败", Toast.LENGTH_SHORT).show();
+                ex.printStackTrace();
+                return;
+            }
+            if(bmpDrawable!=null)
+                bmp = bmpDrawable.getBitmap();
             if (bmp != null) {
                 try {
                     String time=String.valueOf(System.currentTimeMillis());
@@ -66,6 +75,10 @@ public class PicPagerAdapter extends PagerAdapter {
                     bmp.compress(Bitmap.CompressFormat.PNG, 90, fos);
                     fos.flush();
                     fos.close();
+
+                    MediaStore.Images.Media.insertImage(context.getContentResolver(),
+                                cachefile.getAbsolutePath(),null, null);//插入系统图库并广播通知更新
+                    context.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.parse("file://" + Environment.getExternalStorageDirectory()+"/Pictures/Wb/")));
                     Toast.makeText(context, "图片保存在"+cachefile.toString(), Toast.LENGTH_SHORT).show();
 
                 } catch (Exception e) {

@@ -1,5 +1,7 @@
 package com.wmk.wb.model.bean;
 
+import android.text.SpannableString;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -7,12 +9,14 @@ import java.util.List;
  * Created by wmk on 2017/4/4.
  */
 public class FinalViewData {
-    public String text;
+    public SpannableString text;
     public String headurl;
     public String ret_headurl;
     public String name;
     public String ret_name;
-    public String ret_text;
+    public SpannableString ret_text;
+    public SpannableString ret_text_with_name;
+
     public List<String> picurls;
     public List<String> ret_picurls;
     public int reposts_count;
@@ -23,6 +27,7 @@ public class FinalViewData {
     public long ret_id;
     public String time;
     public String ret_time;
+    public boolean isFollowing;
 
     public String description;
     public String gender;
@@ -46,11 +51,11 @@ public class FinalViewData {
     }
 
 
-    public String getText() {
+    public SpannableString getText() {
         return text;
     }
 
-    public FinalViewData setText(String text) {
+    public FinalViewData setText(SpannableString text) {
         this.text = text;
         return  this;
     }
@@ -66,7 +71,14 @@ public class FinalViewData {
         return  this;
     }
 
+    public SpannableString getRet_text_with_name() {
+        return ret_text_with_name;
+    }
 
+    public FinalViewData setRet_text_with_name(SpannableString ret_text_with_name) {
+        this.ret_text_with_name = ret_text_with_name;
+        return  this;
+    }
     public String getName() {
         return name;
     }
@@ -94,11 +106,11 @@ public class FinalViewData {
         return  this;
     }
 
-    public String getRet_text() {
+    public SpannableString getRet_text() {
         return ret_text;
     }
 
-    public FinalViewData setRet_text(String ret_text) {
+    public FinalViewData setRet_text(SpannableString ret_text) {
         this.ret_text = ret_text;
         return  this;
     }
@@ -227,5 +239,13 @@ public class FinalViewData {
     public FinalViewData setStatuses_count(String statuses_count) {
         this.statuses_count = statuses_count;
         return this;
+    }
+
+    public boolean isFollowing() {
+        return isFollowing;
+    }
+
+    public void setFollowing(boolean following) {
+        isFollowing = following;
     }
 }

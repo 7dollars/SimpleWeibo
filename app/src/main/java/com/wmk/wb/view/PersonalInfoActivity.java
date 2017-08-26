@@ -4,15 +4,12 @@ import android.app.ActivityOptions;
 import android.content.Intent;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -21,25 +18,23 @@ import com.bumptech.glide.Glide;
 import com.stylingandroid.prism.Prism;
 import com.wmk.wb.R;
 import com.wmk.wb.model.StaticData;
+import com.wmk.wb.model.WbDataStack;
 import com.wmk.wb.model.bean.DetialsInfo;
 import com.wmk.wb.model.bean.LoadingBus;
 import com.wmk.wb.model.bean.PersonalACInfo;
 import com.wmk.wb.model.bean.Pic_List_Info;
 import com.wmk.wb.model.bean.retjson.User;
-import com.wmk.wb.presenter.MainAC;
 import com.wmk.wb.presenter.PersonalAC;
 import com.wmk.wb.presenter.adapter.MainListAdapter;
 import com.wmk.wb.presenter.adapter.PersonalListAdapter;
 import com.wmk.wb.utils.ColorThemeUtils;
 import com.wmk.wb.utils.EndlessRecyclerOnScrollListener;
 import com.wmk.wb.utils.WrapContentLinearLayoutManager;
-import com.wmk.wb.view.Interface.IMain;
+import com.wmk.wb.utils.XRecyclerView;
 import com.wmk.wb.view.Interface.IPersonal;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
-
-import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -50,24 +45,20 @@ import rx.Subscriber;
 与MainActivity共用一个presenter
 */
 
-public class PersonalInfoActivity extends AppCompatActivity implements IPersonal{
+public class PersonalInfoActivity extends BaseActivity implements IPersonal{
     @Override
     protected void onPause() {
         super.onPause();
+        Glide.get(this).clearMemory();
         isActive=false;
     }
 
-    @Override
-    protected void onDestroy() {
-        StaticData.getInstance().setPersonalflag(false);
-        super.onDestroy();
-    }
 
     @BindView(R.id.tool_bar)
     Toolbar mToolbar;
 
     @BindView(R.id.main_list)
-    RecyclerView main_list;
+    XRecyclerView main_list;
 
     @BindView(R.id.name)
     TextView name;
@@ -95,6 +86,9 @@ public class PersonalInfoActivity extends AppCompatActivity implements IPersonal
     @BindView(R.id.pname)
     TextView pname;
 
+    @BindView(R.id.subscribe)
+    TextView subscribe;
+
     private PersonalListAdapter ListAdapter;
     private Prism prism;
     private CollapsingToolbarLayoutState state;
@@ -120,13 +114,12 @@ public class PersonalInfoActivity extends AppCompatActivity implements IPersonal
         ButterKnife.bind(this);
         EventBus.getDefault().register(this);
 
+
         Intent intent=getIntent();
 //        name=intent.getStringExtra("name");
         instance=new PersonalAC(this);
 
         setSupportActionBar(mToolbar);
-
-
         prism = Prism.Builder.newInstance()
                 .background(getWindow())
                 .background(frame)
@@ -140,6 +133,7 @@ public class PersonalInfoActivity extends AppCompatActivity implements IPersonal
                         state = CollapsingToolbarLayoutState.EXPANDED;//修改状态标记为展开
                         back.setVisibility(View.INVISIBLE);
                         pname.setVisibility(View.INVISIBLE);
+                        subscribe.setVisibility(View.INVISIBLE);
                     }
                 } else if (Math.abs(i) >= appBarLayout.getTotalScrollRange()) {
                     if (state != CollapsingToolbarLayoutState.COLLAPSED) {
@@ -147,12 +141,15 @@ public class PersonalInfoActivity extends AppCompatActivity implements IPersonal
                         state = CollapsingToolbarLayoutState.COLLAPSED;//修改状态标记为折叠
                         back.setVisibility(View.VISIBLE);
                         pname.setVisibility(View.VISIBLE);
+                        subscribe.setVisibility(View.VISIBLE);
+
                     }
                 } else {
                     if (state != CollapsingToolbarLayoutState.INTERNEDIATE) {
                         state = CollapsingToolbarLayoutState.INTERNEDIATE;//修改状态标记为中间
                         back.setVisibility(View.INVISIBLE);
                         pname.setVisibility(View.INVISIBLE);
+                        subscribe.setVisibility(View.INVISIBLE);
                     }
                 }
             }
@@ -164,20 +161,20 @@ public class PersonalInfoActivity extends AppCompatActivity implements IPersonal
 
         ListAdapter=new PersonalListAdapter(this,null,mSubscriber,mSubscriber2);
 
-        LinearLayoutManager manager = new WrapContentLinearLayoutManager(main_list.getContext());
+        WrapContentLinearLayoutManager manager = new WrapContentLinearLayoutManager(main_list.getContext());
         manager.setOrientation(LinearLayoutManager.VERTICAL);
         main_list.setLayoutManager(manager);
         main_list.setAdapter(ListAdapter);
 
-        instance.getWbData(0,intent.getStringExtra("name"));
+        instance.getWbData(this,0,intent.getStringExtra("name"));
 
         EndlessRecyclerOnScrollListener end=new EndlessRecyclerOnScrollListener(manager) {
             @Override
             public void onLoadMore(int currentPage) {
-                if(StaticData.getInstance().getData().size()>0&&LoadMoreFlag==false)
+                if(instance.getTop().getData().size()>0&&LoadMoreFlag==false)
                 {
                     LoadMoreFlag=true;
-                    instance.getWbData(StaticData.getInstance().getPersonaldata().get(StaticData.getInstance().getPersonaldata().size()-1).getId(),name.getText().toString());//-1代表获取个人信息
+                    instance.getWbData(PersonalInfoActivity.this,1,name.getText().toString());//-1代表获取个人信息
                 }
             }
         };//上拉加载
@@ -198,7 +195,7 @@ public class PersonalInfoActivity extends AppCompatActivity implements IPersonal
     @Override
     protected void onResume() {
         prism.setColor(getResources().getColor(ColorThemeUtils.getColor(instance.getThemeColor())));
-        instance.setData();
+     //   instance.setData();
  //       ListAdapter.notifyDataSetChanged();
         super.onResume();
         isActive=true;
@@ -213,7 +210,6 @@ public class PersonalInfoActivity extends AppCompatActivity implements IPersonal
     public void setRefresh(boolean refresh, boolean isScrollToTop) {
 
     }
-
     @Override
     public void notifyListChange() {
         ListAdapter.notifyDataSetChanged();
@@ -266,13 +262,20 @@ public class PersonalInfoActivity extends AppCompatActivity implements IPersonal
         {
             pname.setText(event.getName());
             name.setText(event.getName());
+            follower.setText("粉丝数："+event.getFollowers_count());
+            friends.setText("关注数："+event.getFriends_count());
+            weibo.setText("微博数："+event.getStatuses_count());
+
+            if(event.isFollowing())
+                subscribe.setText("已关注");
+            else
+                subscribe.setText("未关注");
+
             if(!event.getDescription().equals(""))
                 description.setText(event.getDescription());
             else
                 description.setText("暂无简介");
-            follower.setText("粉丝数："+event.getFollowers_count());
-            friends.setText("关注数："+event.getFriends_count());
-            weibo.setText("微博数："+event.getStatuses_count());
+
             if(event.getAvatar_large()!=null)
                 Glide.with(this).load(event.getAvatar_large()).into(head);
 
@@ -285,9 +288,9 @@ public class PersonalInfoActivity extends AppCompatActivity implements IPersonal
         loadingtxt=event.getLoading();
         if(!event.isPress())
             return;
-        if (StaticData.getInstance().getData().size() > 0&&LoadMoreFlag==false) {
+        if (instance.getTop().getData().size() > 0&&LoadMoreFlag==false) {
             LoadMoreFlag=true;
-            instance.getWbData(StaticData.getInstance().getPersonaldata().get(StaticData.getInstance().getPersonaldata().size()-1).getId(),name.getText().toString());
+            instance.getWbData(this,1,name.getText().toString());
         }
 
     }

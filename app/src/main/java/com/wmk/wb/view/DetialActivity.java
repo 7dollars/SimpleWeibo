@@ -42,11 +42,13 @@ public class DetialActivity extends AppCompatActivity implements DetialFragment.
         setContentView(R.layout.activity_detial);
 
         ButterKnife.bind(this);
+
         setSupportActionBar(mToolbar);
         ActionBar actionBar = getSupportActionBar();
         actionBar.setHomeAsUpIndicator(R.mipmap.ic_arrow_back_white_24dp);
         actionBar.setDisplayHomeAsUpEnabled(true);
         instance=new DetialAC();
+        instance.initCommentsStack();
 
         setTitle("微博正文");
 
@@ -56,9 +58,7 @@ public class DetialActivity extends AppCompatActivity implements DetialFragment.
                 .build();
 
         Intent intent = getIntent();
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.detial_frag1, DetialFragment.newInstance(intent.getIntExtra("position", 0), intent.getBooleanExtra("isRet", false), intent.getBooleanExtra("hasChild", false)))
-                .commit();
+
         if (intent.getBooleanExtra("isRet", false)) {
             id=instance.getData(intent.getIntExtra("position", 0)).getRet_id();
         }
@@ -67,6 +67,9 @@ public class DetialActivity extends AppCompatActivity implements DetialFragment.
         }
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.detial_list1, CommentsFragment.newInstance(0, id))
+                .commit();
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.detial_frag1, DetialFragment.newInstance(intent.getIntExtra("position", 0), intent.getBooleanExtra("isRet", false), intent.getBooleanExtra("hasChild", false)))
                 .commit();
     }
 
@@ -131,6 +134,7 @@ public class DetialActivity extends AppCompatActivity implements DetialFragment.
     }
     @Override
     protected void onDestroy() {
+        instance.cleanCommentsData();
         instance=null;
         super.onDestroy();
     }

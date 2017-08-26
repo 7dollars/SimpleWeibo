@@ -15,8 +15,8 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.wmk.wb.R;
+import com.wmk.wb.model.WbDataStack;
 import com.wmk.wb.model.bean.FinalCommentsData;
-import com.wmk.wb.model.StaticData;
 import com.wmk.wb.model.bean.NameEvent;
 import com.wmk.wb.utils.ClickMovementMethod;
 import com.wmk.wb.utils.TextUtils;
@@ -41,8 +41,6 @@ public class MyCommentsRecyclerViewAdapter extends RecyclerView.Adapter<MyCommen
     private Context mContext;
 
     public MyCommentsRecyclerViewAdapter(Context mContext) {
-
-        this.data= StaticData.getInstance().cdata;
         this.mContext=mContext;
     }
 
@@ -56,6 +54,7 @@ public class MyCommentsRecyclerViewAdapter extends RecyclerView.Adapter<MyCommen
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
 
+        this.data= WbDataStack.getInstance().getCommentsTop().getData();
         holder.author.setText(data.get(position).getName());
         holder.text.setText(TextUtils.getWeiBoText(mContext,data.get(position).getText()));
         holder.time.setText(data.get(position).getTime());
@@ -64,7 +63,7 @@ public class MyCommentsRecyclerViewAdapter extends RecyclerView.Adapter<MyCommen
         holder.id=data.get(position).getWbId();
 
 
-        String head=StaticData.getInstance().cdata.get(position).getHeadurl();
+        String head=data.get(position).getHeadurl();
         if(head!=null) {
             Glide.with(mContext).load(head).into(holder.head);
         }
@@ -72,7 +71,7 @@ public class MyCommentsRecyclerViewAdapter extends RecyclerView.Adapter<MyCommen
 
     @Override
     public int getItemCount() {
-        return StaticData.getInstance().cdata.size();
+        return WbDataStack.getInstance().getCommentsTop().getData().size();
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {

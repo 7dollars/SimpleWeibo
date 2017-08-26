@@ -31,6 +31,7 @@ public class Statuses {
     @SerializedName("status")
     public Retweeted_Statuses status;//接受评论时使用
 
+
     @SerializedName("pic_urls")
     public List<Pic_Urls> pic_urls;
 

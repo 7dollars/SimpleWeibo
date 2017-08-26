@@ -11,6 +11,7 @@ import android.graphics.RectF;
 import android.graphics.Region;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -30,31 +31,22 @@ import java.util.logging.LogRecord;
 /**
  * Created by wmk on 2017/6/9.
  */
-
 public class Myfab extends View {
 
     private boolean isShow=false;
-    private int height=0;
     private int rect=0;
-    private Region ClickRegion=new Region();
     private List<Integer> icon=new ArrayList();
     private MenuListener menuListener;
-    private boolean downflag=false;
 
     private int color;
+    private int realheight=0;
 
     public void setColor(int color) {
         this.color = color;
     }
 
-    int xx;
-    int yy;
-
     public Myfab(Context context) {
         super(context);
-        if (!isClickable()) {
-            setClickable(true);
-        }
     }
 
     public Myfab(Context context, @Nullable AttributeSet attrs) {
@@ -62,16 +54,13 @@ public class Myfab extends View {
         if (!isClickable()) {
             setClickable(true);
         }
-    }
-
-    public Myfab(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
-        super(context, attrs, defStyleAttr);
+        color= ContextCompat.getColor(context,R.color.colorPrimary);
     }
 
     public void collapse()
     {
         rect=0;
-        invalidate();
+        invalidate();//不加动画直接缩回去
     }
     public void setIcon(List<Integer> list)
     {
@@ -85,48 +74,49 @@ public class Myfab extends View {
             case MotionEvent.ACTION_UP:
             {
                 result=TouchMethod((int)event.getX(), (int)event.getY(),false);
-                downflag=true;
                 break;
             }
             case MotionEvent.ACTION_DOWN:
             {
-                result=TouchMethod((int)event.getX(), (int)event.getY(),true);
+                result=TouchMethod((int)event.getX(), (int)event.getY(),true);//
                 break;
             }
         }
         if(result)
-            return super.onTouchEvent(event);
+            return true; //已消费事件
         else
-            return false;
+            return false;//未消费事件
     }
 
     private boolean TouchMethod(int x,int y ,boolean isDown)
     {
-        if(y>getMeasuredHeight()-getMeasuredWidth()&&y<getMeasuredHeight()) {
+        if(y>getMeasuredHeight()-getMeasuredWidth()&&y<getMeasuredHeight()) //如果点在底部按钮上
+        {
             if(!isDown)
                 startAnimation();
             return true;
         }
-        else if(y>0&&y<getMeasuredHeight()-getMeasuredWidth()&&isShow)
+        else if(y>0&&y<getMeasuredHeight()-getMeasuredWidth()&&isShow)//如果点在选项上，并且按钮在展开状态
         {
             if(!isDown) {
-                for (int i = icon.size(); i > 0; i--) {
+                for (int i = icon.size(); i > 0; i--) //计算并判断点在了哪个位置（view的宽度为Width，高度为icon.size*Width,相当于每个图标所占的区域都是正方形）
+                {
                     if (y > (i - 1) * getMeasuredWidth() && y < i * getMeasuredWidth()) {
                         if (menuListener != null)
-                            menuListener.click(icon.size() - i + 1);
+                            menuListener.click(icon.size() - i + 1);//调用接口
                     }
                 }
             }
             return true;
         }
         else
-            return false;
+            return false;//按钮未展开
     }
     @Override
     protected void onDraw(Canvas canvas) {
-       // super.onDraw(canvas);
+        // super.onDraw(canvas);
         int px=getMeasuredWidth()/2;
-        int py=getMeasuredWidth()/2;
+
         Paint mPaint=new Paint();
         mPaint.setColor(color);       //设置画笔颜色
         mPaint.setStyle(Paint.Style.FILL);  //设置画笔模式为填充
@@ -135,37 +125,29 @@ public class Myfab extends View {
 
         Path path=new Path();
         path.setFillType(Path.FillType.EVEN_ODD);
-        canvas.translate(px, getMeasuredHeight()-py);
+        canvas.translate(px, getMeasuredHeight()-px);//移动坐标中心
 
-        canvas.drawArc(-px,-px,px,px,0,180,true,mPaint);
-        if(rect<yy-xx) {
-            canvas.drawArc(-px, -px - rect, px, -rect + px, 180, 180, true, mPaint);
-            canvas.drawRect(-px, -rect, px, 0, mPaint);
-        }
-        else {
-            canvas.drawArc(-px, -getMeasuredHeight() + py, px, -getMeasuredHeight() + 3 * px, 180, 180, true, mPaint);
-            canvas.drawRect(-px, -getMeasuredHeight() + 2*py, px, 0, mPaint);
-        }
+        canvas.drawArc(-px,-px,px,px,0,180,true,mPaint);//画出底部的半圆
+        canvas.drawArc(-px, -px - rect, px, -rect + px, 180, 180, true, mPaint); //画出上部分的半圆
+        canvas.drawRect(-px, -rect, px, 0, mPaint);//画出两个半圆中间的矩形
 
         Bitmap bitmap= BitmapFactory.decodeResource(getContext().getResources(), R.mipmap.ic_add_white_24dp);
-        canvas.drawBitmap(bitmap,-bitmap.getWidth()/2,-bitmap.getHeight()/2,mPaint);
+        canvas.drawBitmap(bitmap,-bitmap.getWidth()/2,-bitmap.getHeight()/2,mPaint); //获取并绘制按钮没有展开时的图标
 
         for(int i=0;i<icon.size();i++)
         {
-            if(rect>=2*px*(i+1))//2*px=getMeasuredWidth(),i+1=当前的图表个数(-y)
+            if(rect>=2*px*(i+1))//2*px=getMeasuredWidth(),i+1=当前的图标个数(-y)，如果上升高度足够显示下一个图标，就绘制
             {
                 Bitmap bitmap1= BitmapFactory.decodeResource(getContext().getResources(),icon.get(i).intValue());
-                canvas.drawBitmap(bitmap1,-bitmap.getWidth()/2,-bitmap.getHeight()/2-(i+1)*2*px,mPaint);
+                canvas.drawBitmap(bitmap1,-bitmap.getWidth()/2,-bitmap.getHeight()/2-(i+1)*2*px,mPaint);//在相应位置绘制图标
             }
         }
 
-        if(rect>=yy-xx) {
-            clearAnimation();
+        if(rect==realheight) {//完全展开
             isShow=true;
         }
-        else if(rect==0) {
+        else if(rect==0) {    //完全闭合
             isShow=false;
-            clearAnimation();
         }
     }
 
@@ -180,11 +162,10 @@ public class Myfab extends View {
         width=width>height?height:width;//取较小的
         height=height>width?width:height;
 
-        height+=icon.size()*width;
+        height+=icon.size()*width;     //根据加入图标个数累加view高度
 
-        xx=width;
-        yy=height;
-        //super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+        realheight=height-width;//加入图标的总高度
+
         setMeasuredDimension(width,height);
     }
 
@@ -198,11 +179,8 @@ public class Myfab extends View {
         @Override
         protected void applyTransformation(float interpolatedTime, Transformation t) {
             super.applyTransformation(interpolatedTime, t);
-            if(rect<yy-xx)
-            {
-                rect+=50;
-                invalidate();
-            }
+            rect=(int)(interpolatedTime*(getMeasuredHeight()-getMeasuredWidth()));
+            invalidate();
         }
 
     }
@@ -212,12 +190,7 @@ public class Myfab extends View {
         @Override
         protected void applyTransformation(float interpolatedTime, Transformation t) {
             super.applyTransformation(interpolatedTime, t);
-            if(rect>50)
-            {
-                rect-=50;
-            }
-            else
-                rect=0;
+            rect=(int)((1-interpolatedTime)*(getMeasuredHeight()-getMeasuredWidth()));
             invalidate();
         }
 
@@ -225,19 +198,15 @@ public class Myfab extends View {
     public void startAnimation() {
         if(!isShow) {
             ami move = new ami();
-            move.setDuration(5000);
+            move.setDuration(300);
             move.setInterpolator(new AccelerateDecelerateInterpolator());
-            //move.setRepeatCount(Animation.INFINITE);
-            //move.setRepeatMode(Animation.REVERSE);
             startAnimation(move);
         }
         else
         {
             ami2 move = new ami2();
-            move.setDuration(5000);
+            move.setDuration(300);
             move.setInterpolator(new AccelerateDecelerateInterpolator());
-            //move.setRepeatCount(Animation.INFINITE);
-            //move.setRepeatMode(Animation.REVERSE);
             startAnimation(move);
         }
     }

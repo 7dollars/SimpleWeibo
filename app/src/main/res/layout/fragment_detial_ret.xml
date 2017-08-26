@@ -95,12 +95,19 @@
                         android:layout_height="wrap_content"
                         android:layout_margin="10dp" />
 
-                    <android.support.v7.widget.RecyclerView
+            <!--        <android.support.v7.widget.RecyclerView
                         android:id="@+id/list_pic"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_margin="10dp" />
-
+-->
+                    <com.wmk.wb.utils.NinePicLayout
+                        android:id="@+id/nineLayout"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="10dp"
+                        android:layout_marginRight="10dp"
+                        android:transitionName="image"/>
                     <TextView
                         android:id="@+id/count_ret"
                         android:layout_width="wrap_content"

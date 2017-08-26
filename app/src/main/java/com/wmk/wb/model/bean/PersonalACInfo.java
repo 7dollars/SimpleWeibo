@@ -12,6 +12,15 @@ public class PersonalACInfo {
     private String followers_count; //粉丝
     private String friends_count;   //关注
     private String statuses_count;  //微博
+    private boolean following;
+
+    public boolean isFollowing() {
+        return following;
+    }
+
+    public void setFollowing(boolean following) {
+        this.following = following;
+    }
 
     public String getName() {
         return name;

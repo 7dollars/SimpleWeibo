@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import com.bumptech.glide.Glide;
 import com.wmk.wb.R;
 import com.wmk.wb.model.StaticData;
+import com.wmk.wb.model.WbDataStack;
 import com.wmk.wb.model.bean.DetialsInfo;
 import com.wmk.wb.model.bean.FinalViewData;
 import com.wmk.wb.model.bean.PersonalACInfo;
@@ -34,9 +35,10 @@ public class PersonalListAdapter extends MainListAdapter {
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         if (position==0)
         {
-            FinalViewData data=StaticData.getInstance().getData().get(position);
+            FinalViewData data= WbDataStack.getInstance().getTop().getData().get(position);
             PersonalACInfo pai=new PersonalACInfo();
 
+            pai.setFollowing(data.isFollowing());
             pai.setAvatar_large(data.getHeadurl());
             pai.setDescription(data.getDescription());
             pai.setFollowers_count(data.getFollowers_count());

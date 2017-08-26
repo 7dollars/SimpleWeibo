@@ -12,7 +12,7 @@
     android:id="@+id/imageView7"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:scaleType="centerInside" />
+    android:scaleType="center" />
 
     <TextView
           android:id="@+id/textView2"

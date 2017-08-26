@@ -17,14 +17,9 @@ import java.util.List;
 //一些全局的数据，如ListView用的数据包，和Context
 public class StaticData {
 
-    private int personalflag=0;
-    private boolean expflag=false;
-    private boolean topicflag=false;
+    public Context mContext;
+    public Date system;
     private int themecolor= R.color.colorPrimary;
-
-    public boolean isTopicflag() {
-        return topicflag;
-    }
 
     public int getThemecolor() {
         return themecolor;
@@ -34,75 +29,10 @@ public class StaticData {
         this.themecolor = themecolor;
     }
 
-    public void setTopicflag(boolean topicflag) {
-        this.topicflag = topicflag;
-    }
-
-    public List<FinalViewData> data;
-    public List<FinalViewData> Personaldata;
-    public List<FinalViewData> Expdata;
-    public List<FinalCommentsData> cdata;
-    public Context mContext;
-
-    public Date system;
-
-    public List<FinalViewData> getPersonaldata() {
-        return Personaldata;
-    }
-
-    public void setPersonaldata(List<FinalViewData> personaldata) {
-        Personaldata = personaldata;
-    }
-
-    public User localUser;
-    public int WbFlag;
-
-    public int getWbFlag() {
-        return WbFlag;
-    }
-
-    public void setWbFlag(int wbFlag) {
-        WbFlag = wbFlag;
-    }
-
-    public boolean isPersonalflag() {
-        if(personalflag>0)
-            return true;
-        else
-            return false;
-    }
-
-    public void setPersonalflag(boolean personalflag) {
-        if(personalflag)
-        this.personalflag += 1;
-        else
-            this.personalflag=this.personalflag>0?--this.personalflag:0;
-    }
     public StaticData() {
-        WbFlag=0;
-        data=new ArrayList<>();
-        cdata=new ArrayList<>();
-        Personaldata=new ArrayList<>();
-        Expdata=new ArrayList<>();
         system    =   new    Date(System.currentTimeMillis());//获取当前时间
-        localUser=new User();
     }
 
-    public List<FinalViewData> getData() {
-        if(!isPersonalflag()) {
-            if(!expflag)
-                return data;
-            else
-                return Expdata;
-        }
-        else {
-            return Personaldata;
-        }
-    }
-
-    public void setData(List<FinalViewData> data) {
-        this.data = data;
-    }
 
     public Context getmContext() {
         return mContext;
@@ -116,21 +46,6 @@ public class StaticData {
         return system;
     }
 
-    public boolean isExpflag() {
-        return expflag;
-    }
-
-    public void setExpflag(boolean expflag) {
-        this.expflag = expflag;
-    }
-
-    public List<FinalViewData> getExpdata() {
-        return Expdata;
-    }
-
-    public void setExpdata(List<FinalViewData> expdata) {
-        Expdata = expdata;
-    }
 
     private static class SingletonHolder{
         private static final StaticData INSTANCE = new StaticData();

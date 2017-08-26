@@ -4,6 +4,7 @@ import com.wmk.wb.model.bean.retjson.Access_token;
 import com.wmk.wb.model.bean.retjson.CommentsData;
 import com.wmk.wb.model.bean.retjson.User;
 import com.wmk.wb.model.bean.retjson.WbData;
+import com.wmk.wb.model.bean.retjson.topicjson.TopicData;
 
 
 import okhttp3.ResponseBody;
@@ -21,16 +22,16 @@ public interface IDataManager {
     Observable<Access_token> getToken(@Query("client_id") String id,@Query("client_secret") String secret,@Query("grant_type") String type,@Query("redirect_uri") String uri,@Query("code") String code);
 
     @GET("2/statuses/home_timeline.json")
-    Observable<WbData> getData(@Query("access_token") String access_token,@Query("max_id") long max_id,@Query("feature") int feature);
+    Observable<WbData> getData(@Query("access_token") String access_token,@Query("feature") int feature ,@Query("page") int page);
 
     @GET("2/statuses/user_timeline.json")
-    Observable<WbData> getUserData(@Query("access_token") String access_token,@Query("max_id") long max_id,@Query("screen_name") String screen_name);
+    Observable<WbData> getUserData(@Query("access_token") String access_token,@Query("screen_name") String screen_name,@Query("page") int page);
 
     @GET("2/statuses/mentions.json")
-    Observable<WbData> getMentionsData(@Query("access_token") String access_token,@Query("max_id") long max_id,@Query("feature") int feature);
+    Observable<WbData> getMentionsData(@Query("access_token") String access_token ,@Query("feature") int feature,@Query("page") int page);
 
     @GET("2/statuses/bilateral_timeline.json")
-    Observable<WbData> getbilateralData(@Query("access_token") String access_token,@Query("max_id") long max_id,@Query("feature") int feature);
+    Observable<WbData> getbilateralData(@Query("access_token") String access_token,@Query("feature") int feature,@Query("page") int page);
 
     @GET("2/users/show.json")
     Observable<User>getUser(@Query("access_token") String access_token,@Query("uid") String uid);
@@ -51,13 +52,13 @@ public interface IDataManager {
     Observable<ResponseBody> reply(@Query("access_token") String access_token , @Query("cid") long cid,@Query("id") long id,@Query("comment") String status);
 
     @GET("2/comments/to_me.json")
-    Observable<WbData> toMe(@Query("access_token") String access_token,@Query("max_id") long max_id,@Query("count") int count);
+    Observable<WbData> toMe(@Query("access_token") String access_token,@Query("count") int count,@Query("page") int page);
 
     @GET("2/comments/mentions.json")
-    Observable<WbData> getMentionsComments(@Query("access_token") String access_token,@Query("max_id") long max_id,@Query("count") int count);
+    Observable<WbData> getMentionsComments(@Query("access_token") String access_token,@Query("count") int count,@Query("page") int page);
 
     @GET("2/search/topics.json")
-    Observable<WbData> getTopic(@Query("access_token") String access_token,@Query("q") String topic);
+    Observable<TopicData> getTopic(@Query("access_token") String access_token, @Query("q") String topic, @Query("page") int page);
 
     @GET("2/favorites.json")
     Observable<WbData> getFavorites(@Query("access_token") String access_token,@Query("page") int page,@Query("count") int count);

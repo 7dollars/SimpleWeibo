@@ -56,10 +56,12 @@
         <meta-data
             android:name="com.amap.api.v2.apikey"
             android:value="c50073e23a02f6bbc86f69f1eaa21db2">
-            //开发者申请的key
-        </meta-data>
+            //开发者申请的key</meta-data>
 
-        <activity android:name=".view.ExploreActivity"></activity>
+        <activity android:name=".view.ExploreActivity" />
+        <activity
+            android:name=".view.TopicActivity"
+            android:launchMode="singleTask"></activity>
     </application>
 
 </manifest>

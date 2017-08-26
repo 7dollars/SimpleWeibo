@@ -1,6 +1,7 @@
 package com.wmk.wb.view;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
@@ -22,9 +23,11 @@ import me.xiaopan.sketch.SketchImageView;
 import me.xiaopan.sketch.drawable.ImageAttrs;
 import me.xiaopan.sketch.request.CancelCause;
 import me.xiaopan.sketch.request.DisplayListener;
+import me.xiaopan.sketch.request.DisplayOptions;
 import me.xiaopan.sketch.request.DownloadProgressListener;
 import me.xiaopan.sketch.request.ErrorCause;
 import me.xiaopan.sketch.request.ImageFrom;
+import me.xiaopan.sketch.request.MaxSize;
 import uk.co.senab.photoview.PhotoView;
 
 public class ImageActivity extends AppCompatActivity implements IImage {
@@ -34,6 +37,7 @@ public class ImageActivity extends AppCompatActivity implements IImage {
 
     private ArrayList<String> pic_list;
     private int position;
+    private DisplayOptions displayOptions = new DisplayOptions();
 
 
     @Override
@@ -96,8 +100,12 @@ public class ImageActivity extends AppCompatActivity implements IImage {
              loading.setText(String.valueOf((i1*100)/i)+"%");
          }
      });
-        img.getOptions().setDecodeGifImage(true);
-        Sketch.with(ImageActivity.this).display(pic_list.get(position), img)
+        //img.getOptions().setDecodeGifImage(true);
+        displayOptions.setMaxSize(new MaxSize(9999999,999999999));
+        displayOptions.setDecodeGifImage(true);
+        Sketch.with(ImageActivity.this)
+                .display(pic_list.get(position), img)
+                .options(displayOptions)
                 .commit();
         }
     }

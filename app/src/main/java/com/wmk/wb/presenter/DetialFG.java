@@ -1,6 +1,7 @@
 package com.wmk.wb.presenter;
 
 import com.wmk.wb.model.StaticData;
+import com.wmk.wb.model.WbDataStack;
 import com.wmk.wb.model.bean.FinalViewData;
 import com.wmk.wb.model.bean.Pic_List_Info;
 import com.wmk.wb.view.Interface.IDetialFG;
@@ -40,20 +41,22 @@ public class DetialFG {
     }
     public void setData(int position, boolean isRet, boolean hasChild)
     {
-        FinalViewData fdata= StaticData.getInstance().getData().get(position);
+        FinalViewData fdata=null;
+
+        fdata= WbDataStack.getInstance().getTop().getData().get(position);
 
         if(isRet) {
-            instance.updateData(false,fdata.getRet_name(),fdata.getRet_text(),fdata.getReposts_count_ret() + "转发 | " + fdata.getComments_count_ret() + "回复",fdata.getRet_time());
+            instance.updateData(false,fdata.getRet_name(),fdata.getRet_text().toString(),fdata.getReposts_count_ret() + "转发 | " + fdata.getComments_count_ret() + "回复",fdata.getRet_time());
             instance.setPic(false,fdata);
         }
         else if(hasChild)
         {
-            instance.updateData(fdata.getName(),fdata.getText(),fdata.getReposts_count() + "转发 | " + fdata.getComments_count() + "回复",fdata.getReposts_count_ret() + "转发 | " + fdata.getComments_count_ret() + "回复","@"+fdata.getRet_name()+":"+fdata.getRet_text(),fdata.getTime());
+            instance.updateData(fdata.getName(),fdata.getText().toString(),fdata.getReposts_count() + "转发 | " + fdata.getComments_count() + "回复",fdata.getReposts_count_ret() + "转发 | " + fdata.getComments_count_ret() + "回复","@"+fdata.getRet_name()+":"+fdata.getRet_text(),fdata.getTime());
             instance.setPic(true,fdata);
         }
         else
         {
-            instance.updateData(true,fdata.getName(),fdata.getText(),fdata.getReposts_count() + "转发 | " + fdata.getComments_count() + "回复",fdata.getTime());
+            instance.updateData(true,fdata.getName(),fdata.getText().toString(),fdata.getReposts_count() + "转发 | " + fdata.getComments_count() + "回复",fdata.getTime());
             instance.setPic(true,fdata);
 
         }

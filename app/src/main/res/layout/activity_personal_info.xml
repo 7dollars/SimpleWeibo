@@ -43,6 +43,19 @@
                 android:visibility="invisible"
                 android:textSize="18dp"
                 android:textColor="@color/md_white_1000"/>
+            <TextView
+                android:id="@+id/subscribe"
+                android:layout_width="wrap_content"
+                android:layout_height="24dp"
+                android:layout_gravity="right|bottom"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="16dp"
+                android:layout_marginRight="24dp"
+                android:elevation="12dp"
+                android:visibility="invisible"
+                android:foreground="?android:attr/selectableItemBackground"
+                android:textSize="18dp"
+                android:textColor="@color/md_white_1000"/>
             <android.support.v7.widget.Toolbar
                 android:id="@+id/tool_bar"
                 android:layout_width="match_parent"
@@ -85,6 +98,7 @@
                 android:layout_marginLeft="16dp"
                 android:layout_marginRight="16dp"
                 android:elevation="11dp"
+                android:maxLines="5"
                 android:textColor="@color/md_white_1000"
                 />
 
@@ -131,13 +145,13 @@
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
         app:behavior_overlapTop="24dp"
         android:elevation="20dp">
-        <android.support.v7.widget.RecyclerView
+        <com.wmk.wb.utils.XRecyclerView
             android:id="@+id/main_list"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:scrollbars="vertical"
             android:layout_marginLeft="4dp"
             android:layout_marginRight="4dp">
-        </android.support.v7.widget.RecyclerView>
+        </com.wmk.wb.utils.XRecyclerView>
     </LinearLayout>
 </android.support.design.widget.CoordinatorLayout>

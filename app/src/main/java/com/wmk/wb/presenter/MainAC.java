@@ -1,16 +1,13 @@
 package com.wmk.wb.presenter;
 
 import android.content.Context;
+import android.widget.TextView;
 
-import com.amap.api.location.AMapLocation;
-import com.amap.api.location.AMapLocationClient;
-import com.amap.api.location.AMapLocationClientOption;
-import com.amap.api.location.AMapLocationListener;
+import com.wmk.wb.model.WbDataStack;
 import com.wmk.wb.model.bean.DetialsInfo;
 import com.wmk.wb.model.bean.FinalViewData;
 import com.wmk.wb.model.DataManager;
 import com.wmk.wb.model.StaticData;
-import com.wmk.wb.model.bean.LocationBean;
 import com.wmk.wb.model.bean.Pic_List_Info;
 import com.wmk.wb.model.bean.retjson.Access_token;
 import com.wmk.wb.model.bean.retjson.Statuses;
@@ -18,6 +15,7 @@ import com.wmk.wb.model.bean.retjson.User;
 import com.wmk.wb.model.bean.retjson.WbData;
 import com.wmk.wb.utils.ConvertDate;
 import com.wmk.wb.utils.SpUtil;
+import com.wmk.wb.utils.TextUtils;
 import com.wmk.wb.view.Interface.IMain;
 
 import java.util.ArrayList;
@@ -31,23 +29,24 @@ import rx.Subscriber;
 
 public class MainAC extends BasePresenter{
     private IMain instance;
-    private Subscriber<WbData> mSubscribe;
+    private Subscriber<FinalViewData> mSubscribe;
+    private boolean isSlideMenuLoaded=false;
     public MainAC(IMain instance) {
         this.instance=instance;
     }
 
-    public void getWbData(final long max_id, final int commentflag, String name, LocationBean location)
+    public void getWbData(final Context context, final long max_id, final int commentflag)
     {
-        if(name==null)
-            return;
-
         final int flag=commentflag;
-        mSubscribe = new Subscriber<WbData>() {
+        mSubscribe = new Subscriber<FinalViewData>() {
+            List<FinalViewData> data = new ArrayList<>();
             @Override
             public void onCompleted() {
                     if (max_id == 0) {
+                        WbDataStack.getInstance().getTop().setData(data);
                         instance.setRefresh(false, true);
                     } else {
+                        WbDataStack.getInstance().getTop().getData().addAll(data);
                         instance.setRefresh(false, false);
                     }
                     instance.setLoadMore(false);
@@ -62,85 +61,18 @@ public class MainAC extends BasePresenter{
                 instance.setLoadMore(false);
             }
             @Override
-            public void onNext(WbData wbData) {
-                FinalViewData fdata;
-                int size=0;
-                List<FinalViewData> data = new ArrayList<>();
-                    if ((wbData.getStatuses(flag) == null)&&(wbData.getFavorites()==null)) {
-                        StaticData.getInstance().data = data;
-                        return;
-                    }
-                    if(wbData.getStatuses(flag)!=null)
-                        size=wbData.getStatuses(flag).size();
-                    else
-                        size=wbData.getFavorites().size();
+            public void onNext(FinalViewData wbData) {
+                if(wbData!=null)
+                data.add(wbData);
+            }
 
-                    Statuses temp=new Statuses();
-                    for (int i = 0; i < size; i++) {
-                        if (i == 0 && max_id != 0)
-                            i = 1;
-                        if (size <= 1)
-                            break;
-                        fdata = new FinalViewData();
-                        if(wbData.getFavorites()!=null)
-                            temp=wbData.getFavorites().get(i).getStatuses();
-                        else
-                            temp=wbData.getStatuses(flag).get(i);
-
-                        fdata.setText(temp.getText())
-                                .setHeadurl(temp.getUser().getAvatar_large())
-                                .setName(temp.getUser().getName())
-                                .setId(temp.getId())
-                                .setTime(ConvertDate.calcDate(temp.getCreated_at()))
-                                .setReposts_count(temp.getReposts_count())
-                                .setComments_count(temp.getComments_count());
-
-                        if (temp.getRetweeted_statuses(flag) != null) {
-                            fdata.setRet_time(ConvertDate.calcDate(temp.getRetweeted_statuses(flag).getCreated_at()))
-                                    .setRet_text(temp.getRetweeted_statuses(flag).getText())
-                                    .setReposts_count_ret(temp.getRetweeted_statuses(flag).getReposts_count())
-                                    .setComments_count_ret(temp.getRetweeted_statuses(flag).getComments_count())
-                                    .setRet_name(temp.getRetweeted_statuses(flag).getUser().getName())
-                                    .setRet_headurl(temp.getRetweeted_statuses(flag).getUser().getAvatar_large())
-                                    .setRet_id(temp.getRetweeted_statuses(flag).getId());
-
-                            if (temp.getRetweeted_statuses(flag).getPic_urls() != null) {
-                                fdata.setRet_picurls(temp.getRetweeted_statuses(flag).getPic_urls());
-                            }
-                            if (temp.getRetweeted_statuses(flag).getPic_ids() != null && temp.getRetweeted_statuses(flag).getPic_ids().size() != 0) {
-                                List<String> array = new ArrayList<>();
-                                for (String ids : temp.getRetweeted_statuses(flag).getPic_ids()) {
-                                    ids = "http://ww3.sinaimg.cn/thumbnail/" + ids + ".jpg";
-                                    array.add(ids);
-                                }
-                                fdata.setRet_picurls(array);
-                            }
-                        }
-                        if (temp.getPic_urls() != null) {
-                            fdata.setPicurls(temp.getPic_urls());
-                        }
-                        if (temp.getPic_ids() != null && temp.getPic_ids().size() != 0) {
-                            List<String> array = new ArrayList<>();
-                            for (String ids : temp.getPic_ids()) {
-                                ids = "http://ww3.sinaimg.cn/thumbnail/" + ids + ".jpg";
-                                array.add(ids);
-                            }
-                            fdata.setPicurls(array);
-                        }
-                        if (max_id != 0)
-                            StaticData.getInstance().data.add(fdata);
-                        else
-                            data.add(fdata);
-                    }
-                    if (max_id == 0)
-                        StaticData.getInstance().data = data;
-
-                }
         };
-        StaticData.getInstance().setPersonalflag(false);
+        if(max_id==0)
+            WbDataStack.getInstance().getTop().setPageCount(1);
+        else
+            WbDataStack.getInstance().getTop().incPageCount();
 
-        DataManager.getInstance().getWbData(mSubscribe, max_id);
-
+        DataManager.getInstance().getWbData(context,mSubscribe, max_id,WbDataStack.getInstance().getTop().getPageCount());
 
     }
     public Subscriber<Pic_List_Info> getPicSubscriber()
@@ -190,7 +122,7 @@ public class MainAC extends BasePresenter{
             @Override
             public void onCompleted() {
                 instance.showToast("登陆成功");
-                getWbData(0,1,null,null);
+                getWbData(context,0,1);
             }
 
             @Override
@@ -211,12 +143,12 @@ public class MainAC extends BasePresenter{
         final Subscriber<User> mSubscriber=new Subscriber<User>() {
             @Override
             public void onCompleted() {
-                unsubscribe();
+                isSlideMenuLoaded=true;
             }
 
             @Override
             public void onError(Throwable e) {
-
+                isSlideMenuLoaded=false;
             }
 
             @Override
@@ -226,31 +158,19 @@ public class MainAC extends BasePresenter{
         };
         return mSubscriber;
     }
-    public void setPersonalFlag(boolean flag)
-    {
-        StaticData.getInstance().setPersonalflag(flag);
-        StaticData.getInstance().setTopicflag(false);
-    }
+
     public void getSlideMenu()
     {
         DataManager.getInstance().getLocalUser(getUserSubscriber());
     }
-    public void clearPersonalData()
-    {
-        StaticData.getInstance().setPersonaldata(new ArrayList<FinalViewData>());
-    }
-    public void setTopicFlag(boolean flag)
-    {
-        StaticData.getInstance().setPersonalflag(flag);
-        StaticData.getInstance().setPersonalflag(false);
-    }
+
     public  void setStaticColor(int color)
     {
         StaticData.getInstance().setThemecolor(color);
     }
 
-    public StaticData getStaticData()
-    {
-        return  StaticData.getInstance();
+
+    public boolean isSlideMenuLoaded() {
+        return isSlideMenuLoaded;
     }
 }

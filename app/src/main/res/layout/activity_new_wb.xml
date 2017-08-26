@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="match_parent"
     android:orientation="vertical"
     tools:layout_editor_absoluteX="8dp"
     tools:layout_editor_absoluteY="8dp">
@@ -33,7 +33,10 @@
     <EditText
         android:id="@+id/editText"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/app_bar_layout"
+        android:layout_above="@+id/bottom_toolbar"
+        android:gravity="start"
         android:ems="10"
         android:hint="输入文字"
         android:inputType="text|textMultiLine"
@@ -41,4 +44,12 @@
         android:lineSpacingExtra="3dp"
         android:background="@null"
         />
-</LinearLayout>
+
+    <include layout="@layout/bottom_toolbar"></include>
+    <LinearLayout
+        android:id="@+id/rep_frag"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_alignParentBottom="true"></LinearLayout>
+</RelativeLayout>

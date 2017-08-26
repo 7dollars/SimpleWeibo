@@ -12,7 +12,7 @@ import com.amap.api.services.geocoder.GeocodeSearch;
 import com.amap.api.services.geocoder.RegeocodeQuery;
 import com.amap.api.services.geocoder.RegeocodeResult;
 import com.wmk.wb.model.DataManager;
-import com.wmk.wb.model.StaticData;
+import com.wmk.wb.model.WbDataStack;
 import com.wmk.wb.model.bean.DetialsInfo;
 import com.wmk.wb.model.bean.FinalViewData;
 import com.wmk.wb.model.bean.LocationBean;
@@ -21,6 +21,7 @@ import com.wmk.wb.model.bean.RegionInfo;
 import com.wmk.wb.model.bean.retjson.Statuses;
 import com.wmk.wb.model.bean.retjson.WbData;
 import com.wmk.wb.utils.ConvertDate;
+import com.wmk.wb.utils.TextUtils;
 import com.wmk.wb.view.Interface.IExplore;
 
 import java.util.ArrayList;
@@ -35,13 +36,14 @@ import rx.Subscriber;
 
 public class ExploreAC extends BasePresenter implements GeocodeSearch.OnGeocodeSearchListener {
     private IExplore instance;
-    private Subscriber<WbData> mSubscribe;
+    private Subscriber<FinalViewData> mSubscribe;
     private AMapLocationClient locationClient = null;
     private AMapLocationClientOption locationOption = null;
     private long max_id;
     private GeocodeSearch geocoderSearch;
     private LatLonPoint llp;
     private int dataflag=0;
+    private Context context;
     public ExploreAC(IExplore instance) {
         this.instance = instance;
     }
@@ -90,24 +92,25 @@ public class ExploreAC extends BasePresenter implements GeocodeSearch.OnGeocodeS
         };
         return mSubscriber;
     }
-    public void getWbData(long max_id)
+    public void getWbData(Context context,long max_id)
     {
+        this.context=context;
         dataflag=0;
         this.max_id=max_id;
-        initsub();
-        StaticData.getInstance().setWbFlag(7);
-        if(max_id==0)
+        initsub(context);
+        setDataType(7);
+        if(max_id==0) {
+            WbDataStack.getInstance().getTop().setPageCount(1);
             startLocation();
-        else
-            DataManager.getInstance().getWbData(mSubscribe, this.max_id);
+        }
+        else {
+            WbDataStack.getInstance().getTop().incPageCount();
+            DataManager.getInstance().getWbData(context,mSubscribe, this.max_id,WbDataStack.getInstance().getTop().getPageCount());
+        }
 
 
     }
-    public void RefreshOnly(final long max_id)
-    {
-        initsub();
-        DataManager.getInstance().getWbData(mSubscribe, this.max_id);
-    }
+
     public void initLocation(Context context){
         //初始化client
         locationClient = new AMapLocationClient(context);
@@ -144,7 +147,7 @@ public class ExploreAC extends BasePresenter implements GeocodeSearch.OnGeocodeS
                     LocationBean.getInstance().setRange(3000);
                     instance.showToast(location.getAddress());
                     instance.setRefresh(true,false);
-                    DataManager.getInstance().getWbData(mSubscribe,0);
+                    DataManager.getInstance().getWbData(context,mSubscribe,0,WbDataStack.getInstance().getTop().getPageCount());
                     instance.setAddress(location.getAddress());
 
                     //定位完成的时间
@@ -180,13 +183,20 @@ public class ExploreAC extends BasePresenter implements GeocodeSearch.OnGeocodeS
         locationClient.stopLocation();
     }
 
-    private void initsub()
+    private void initsub(final Context context)
     {
-        final int flag=1;
-        mSubscribe = new Subscriber<WbData>() {
+        mSubscribe = new Subscriber<FinalViewData>() {
+            List<FinalViewData> data = new ArrayList<>();
             @Override
             public void onCompleted() {
-                ExploreAC.this.instance.setRefresh(false, false);
+                if (max_id == 0) {
+                    WbDataStack.getInstance().getTop().setData(data);
+                    instance.setRefresh(false, true);
+                } else {
+                    WbDataStack.getInstance().getTop().getData().addAll(data);
+                    instance.setRefresh(false, false);
+                }
+           //     ExploreAC.this.instance.setRefresh(false, false);
                 instance.setLoadMore(false);
                 ExploreAC.this. instance.notifyListChange();
             }
@@ -207,79 +217,8 @@ public class ExploreAC extends BasePresenter implements GeocodeSearch.OnGeocodeS
 
             }
             @Override
-            public void onNext(WbData wbData) {
-                FinalViewData fdata;
-                int size=0;
-                List<FinalViewData> data = new ArrayList<>();
-                if ((wbData.getStatuses(flag) == null)&&(wbData.getFavorites()==null)) {
-                    StaticData.getInstance().data = data;
-                    return;
-                }
-                if(wbData.getStatuses(flag)!=null)
-                    size=wbData.getStatuses(flag).size();
-                else
-                    size=wbData.getFavorites().size();
-
-                Statuses temp=new Statuses();
-                for (int i = 0; i < size; i++) {
-                    if (i == 0 && max_id != 0)
-                        i = 1;
-                    if (size <= 1)
-                        break;
-                    fdata = new FinalViewData();
-                    if(wbData.getFavorites()!=null)
-                        temp=wbData.getFavorites().get(i).getStatuses();
-                    else
-                        temp=wbData.getStatuses(flag).get(i);
-
-                    fdata.setText(temp.getText())
-                            .setHeadurl(temp.getUser().getAvatar_large())
-                            .setName(temp.getUser().getName())
-                            .setId(temp.getId())
-                            .setTime(ConvertDate.calcDate(temp.getCreated_at()))
-                            .setReposts_count(temp.getReposts_count())
-                            .setComments_count(temp.getComments_count());
-
-                    if (temp.getRetweeted_statuses(flag) != null) {
-                        fdata.setRet_time(ConvertDate.calcDate(temp.getRetweeted_statuses(flag).getCreated_at()))
-                                .setRet_text(temp.getRetweeted_statuses(flag).getText())
-                                .setReposts_count_ret(temp.getRetweeted_statuses(flag).getReposts_count())
-                                .setComments_count_ret(temp.getRetweeted_statuses(flag).getComments_count())
-                                .setRet_name(temp.getRetweeted_statuses(flag).getUser().getName())
-                                .setRet_headurl(temp.getRetweeted_statuses(flag).getUser().getAvatar_large())
-                                .setRet_id(temp.getRetweeted_statuses(flag).getId());
-
-                        if (temp.getRetweeted_statuses(flag).getPic_urls() != null) {
-                            fdata.setRet_picurls(temp.getRetweeted_statuses(flag).getPic_urls());
-                        }
-                        if (temp.getRetweeted_statuses(flag).getPic_ids() != null && temp.getRetweeted_statuses(flag).getPic_ids().size() != 0) {
-                            List<String> array = new ArrayList<>();
-                            for (String ids : temp.getRetweeted_statuses(flag).getPic_ids()) {
-                                ids = "http://ww3.sinaimg.cn/thumbnail/" + ids + ".jpg";
-                                array.add(ids);
-                            }
-                            fdata.setRet_picurls(array);
-                        }
-                    }
-                    if (temp.getPic_urls() != null) {
-                        fdata.setPicurls(temp.getPic_urls());
-                    }
-                    if (temp.getPic_ids() != null && temp.getPic_ids().size() != 0) {
-                        List<String> array = new ArrayList<>();
-                        for (String ids : temp.getPic_ids()) {
-                            ids = "http://ww3.sinaimg.cn/thumbnail/" + ids + ".jpg";
-                            array.add(ids);
-                        }
-                        fdata.setPicurls(array);
-                    }
-                    if (max_id != 0)
-                        StaticData.getInstance().Expdata.add(fdata);
-                    else
-                        data.add(fdata);
-                }
-                if (max_id == 0)
-                    StaticData.getInstance().Expdata = data;
-
+            public void onNext(FinalViewData wbData) {
+                data.add(wbData);
             }
         };
     }
@@ -302,13 +241,14 @@ public class ExploreAC extends BasePresenter implements GeocodeSearch.OnGeocodeS
         }
     }
 
-    public void getRandomData(long max_id, RegionInfo ri)
+    public void getRandomData(Context context,long max_id, RegionInfo ri)
     {
         dataflag=1;
         this.max_id=max_id;
-        initsub();
+        this.context=context;
+        initsub(context);
         Random random = new Random();
-        StaticData.getInstance().setWbFlag(7);
+        setDataType(7);
 
         if(ri!=null) {
             String Lat = String.valueOf(ri.getLat());
@@ -327,7 +267,7 @@ public class ExploreAC extends BasePresenter implements GeocodeSearch.OnGeocodeS
     public void onRegeocodeSearched(RegeocodeResult regeocodeResult, int i) {
         instance.setAddress(regeocodeResult.getRegeocodeAddress().getFormatAddress());
         instance.setRefresh(true,false);
-        DataManager.getInstance().getWbData(mSubscribe,0);
+        DataManager.getInstance().getWbData(context,mSubscribe,0,WbDataStack.getInstance().getTop().getPageCount());
     }
 
     @Override

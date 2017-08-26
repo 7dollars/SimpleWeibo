@@ -33,21 +33,22 @@
         android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-        <android.support.v7.widget.RecyclerView
+        <com.wmk.wb.utils.XRecyclerView
             android:id="@+id/main_list"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:scrollbars="vertical" />
     </android.support.v4.widget.SwipeRefreshLayout>
-
     <com.wmk.wb.utils.Myfab
         android:id="@+id/fabtn"
         android:layout_width="60dp"
         android:layout_height="60dp"
         android:layout_marginBottom="15dp"
         android:layout_marginRight="15dp"
+        android:elevation="5dp"
         app:layout_anchor="@+id/swipe"
-        app:layout_anchorGravity="right|bottom" />
+        app:layout_anchorGravity="right|bottom"
+        app:layout_behavior="@string/MyFloating_behavior"/>
 
 </android.support.design.widget.CoordinatorLayout>
 

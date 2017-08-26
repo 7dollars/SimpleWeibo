@@ -1,7 +1,10 @@
 package com.wmk.wb.presenter;
 
+import android.content.Context;
+
 import com.wmk.wb.model.DataManager;
 import com.wmk.wb.model.StaticData;
+import com.wmk.wb.model.WbDataStack;
 import com.wmk.wb.model.bean.FinalCommentsData;
 import com.wmk.wb.model.bean.retjson.CommentsData;
 import com.wmk.wb.utils.ConvertDate;
@@ -24,13 +27,15 @@ public class CommentsFG {
         this.id=id;
     }
 
-    public void getComments(final long max_id)
+    public void getComments(Context context,final long max_id)
     {
-        Subscriber<CommentsData> mSubscribe;
+        Subscriber<FinalCommentsData> mSubscribe;
 
-        mSubscribe=new Subscriber<CommentsData>() {
+        mSubscribe=new Subscriber<FinalCommentsData>() {
+            List<FinalCommentsData> data = new ArrayList<>();
             @Override
             public void onCompleted() {
+                WbDataStack.getInstance().getCommentsTop().setData(data);
                 instance.notifyListChange();
             }
 
@@ -40,29 +45,10 @@ public class CommentsFG {
             }
 
             @Override
-            public void onNext(CommentsData commentsdata) {
-                FinalCommentsData fdata;
-                List<FinalCommentsData> data=new ArrayList<>();
-                if(max_id==0)
-                {
-                    StaticData.getInstance().cdata.clear();
-                }
-                for (int i = 0; i < commentsdata.comments.size(); i++) {
-                    if(i==0&&max_id!=0)//防止刷新时候有一条重复
-                        i=1;
-                    fdata=new FinalCommentsData();
-                    fdata.setHeadurl(commentsdata.comments.get(i).user.getAvatar_large())
-                            .setName(commentsdata.comments.get(i).user.getName())
-                            .setText(commentsdata.comments.get(i).text)
-                            .setTime(ConvertDate.calcDate(commentsdata.comments.get(i).created_at))
-                            .setId(commentsdata.comments.get(i).id)
-                            .setSource(commentsdata.comments.get(i).source)
-                            .setWbId(id);
-                    data.add(fdata);
-                }
-                StaticData.getInstance().cdata.addAll(data);
+            public void onNext(FinalCommentsData commentsdata) {
+                data.add(commentsdata);
             }
         };
-        DataManager.getInstance().getComments(mSubscribe,id,max_id,null);
+        DataManager.getInstance().getComments(context,mSubscribe,id,max_id);
     }
 }

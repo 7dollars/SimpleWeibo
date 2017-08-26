@@ -22,6 +22,7 @@ import com.wmk.wb.model.bean.Pic_List_Info;
 import com.wmk.wb.presenter.DetialFG;
 import com.wmk.wb.presenter.adapter.PicListAdapter;
 import com.wmk.wb.utils.ClickMovementMethod;
+import com.wmk.wb.utils.NinePicLayout;
 import com.wmk.wb.utils.TextUtils;
 import com.wmk.wb.view.Interface.IDetialFG;
 import com.wmk.wb.view.ImageActivity;
@@ -29,6 +30,8 @@ import com.wmk.wb.view.ImageActivity;
 import org.greenrobot.eventbus.EventBus;
 
 import de.hdodenhof.circleimageview.CircleImageView;
+import rx.Observable;
+import rx.Subscriber;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -38,7 +41,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
  * Use the {@link DetialFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class DetialFragment extends Fragment implements IDetialFG{
+public class DetialFragment extends Fragment implements IDetialFG,NinePicLayout.PicClickListener{
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
 
@@ -48,10 +51,10 @@ public class DetialFragment extends Fragment implements IDetialFG{
     private TextView time;
     private TextView count;
     private RecyclerView list_pic;
+    private NinePicLayout nine;
 
     private TextView ret_content;
     private TextView count_ret;
-    private RecyclerView list_pic_ret;
 
     private long id;
 
@@ -91,7 +94,8 @@ public class DetialFragment extends Fragment implements IDetialFG{
                 time=(TextView)v.findViewById(R.id.txt_time);
                 content=(TextView)v.findViewById(R.id.txt_content);
                 count=(TextView)v.findViewById(R.id.count);
-                list_pic=(RecyclerView)v.findViewById(R.id.list_pic);
+            //    list_pic=(RecyclerView)v.findViewById(R.id.list_pic);
+                nine=(NinePicLayout)v.findViewById(R.id.nineLayout);
                 content.setOnTouchListener(ClickMovementMethod.getInstance());
                 instance.setData(getArguments().getInt("position"),getArguments().getBoolean("isRet"),getArguments().getBoolean("hasChild"));
                 return v;
@@ -103,7 +107,7 @@ public class DetialFragment extends Fragment implements IDetialFG{
                 time=(TextView)v.findViewById(R.id.txt_time);
                 content=(TextView)v.findViewById(R.id.txt_content);
                 count=(TextView)v.findViewById(R.id.count);
-                list_pic=(RecyclerView)v.findViewById(R.id.list_pic);
+                nine=(NinePicLayout)v.findViewById(R.id.nineLayout);
                 ret_content=(TextView)v.findViewById(R.id.ret_content);
                 count_ret=(TextView)v.findViewById(R.id.count_ret);
                 content.setOnTouchListener(ClickMovementMethod.getInstance());
@@ -118,7 +122,7 @@ public class DetialFragment extends Fragment implements IDetialFG{
                 time=(TextView)v.findViewById(R.id.txt_time);
                 content=(TextView)v.findViewById(R.id.txt_content);
                 count=(TextView)v.findViewById(R.id.count);
-                list_pic=(RecyclerView)v.findViewById(R.id.list_pic);
+                nine=(NinePicLayout)v.findViewById(R.id.nineLayout);
                 content.setOnTouchListener(ClickMovementMethod.getInstance());
                 instance.setData(getArguments().getInt("position"),getArguments().getBoolean("isRet"),getArguments().getBoolean("hasChild"));
                 return v;
@@ -127,7 +131,12 @@ public class DetialFragment extends Fragment implements IDetialFG{
         return inflater.inflate(R.layout.fragment_detial, container, false);
     }
 
-    // TODO: Rename method, update argument and hook method into UI event
+    @Override
+    public void onPause() {
+        super.onPause();
+    }
+
+// TODO: Rename method, update argument and hook method into UI event
 
     @Override
     public void onAttach(Context context) {
@@ -195,18 +204,34 @@ public class DetialFragment extends Fragment implements IDetialFG{
             Glide.with(getActivity()).load(fdata.getRet_headurl()).into(head);
         }
         if (fdata.getPicurls().size() != 0) {
-            LinearLayoutManager manager = new LinearLayoutManager(list_pic.getContext());
-            manager.setOrientation(LinearLayoutManager.HORIZONTAL);
-            list_pic.setLayoutManager(manager);
-            list_pic.setAdapter(new PicListAdapter(getActivity(), fdata.getPicurls(), 0, instance.getPicSubscriber()));
+      //      LinearLayoutManager manager = new LinearLayoutManager(list_pic.getContext());
+      //      manager.setOrientation(LinearLayoutManager.HORIZONTAL);
+      //      list_pic.setLayoutManager(manager);
+      //      list_pic.setAdapter(new PicListAdapter(getActivity(), fdata.getPicurls(), 0, instance.getPicSubscriber()));
+            nine.setPicClickListener(this);
+            nine.setImageUrlList(fdata.getPicurls());
+            nine.loadPIC();
         }
         if (fdata.getRet_picurls().size() != 0) {
-            LinearLayoutManager manager = new LinearLayoutManager(list_pic.getContext());
-            manager.setOrientation(LinearLayoutManager.HORIZONTAL);
-            list_pic.setLayoutManager(manager);
-            list_pic.setAdapter(new PicListAdapter(getActivity(), fdata.getRet_picurls(), 0, instance.getPicSubscriber()));
+        //    LinearLayoutManager manager = new LinearLayoutManager(list_pic.getContext());
+        //    manager.setOrientation(LinearLayoutManager.HORIZONTAL);
+        //    list_pic.setLayoutManager(manager);
+        //    list_pic.setAdapter(new PicListAdapter(getActivity(), fdata.getRet_picurls(), 0, instance.getPicSubscriber()));
+            nine.setPicClickListener(this);
+            nine.setImageUrlList(fdata.getRet_picurls());
+            nine.loadPIC();
         }
     }
+
+    @Override
+    public void click(final Pic_List_Info i) {
+        Observable<Pic_List_Info> observable = Observable.create(new Observable.OnSubscribe<Pic_List_Info>() {
+            @Override
+            public void call(Subscriber<? super Pic_List_Info> subscriber) {subscriber.onNext(i);}
+        });
+        observable.subscribe(instance.getPicSubscriber());
+    }
+
 
 
     /**

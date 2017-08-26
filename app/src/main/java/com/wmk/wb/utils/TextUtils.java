@@ -7,12 +7,15 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.net.Uri;
+import android.text.Editable;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.TextPaint;
 import android.text.style.ClickableSpan;
 import android.text.style.ImageSpan;
+import android.util.Log;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import com.wmk.wb.R;
@@ -83,6 +86,26 @@ public class TextUtils {
         }
         return spannable;
     }
+    public static void appendImage(Context context,String imgRes,int imgR,EditText editText) {
+        // 用imgUrl获取Bitmap对象
+        Resources res = context.getResources();
+
+        BitmapFactory.Options options = new BitmapFactory.Options();
+
+        options.inJustDecodeBounds = false;
+        Bitmap bitmap = BitmapFactory.decodeResource(res, imgR, options);
+
+        SpannableString ss=new SpannableString(imgRes);
+        ImageSpan span = new ImageSpan(context, bitmap);
+        ss.setSpan(span, 0, imgRes.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        // 获取Editable的对象
+        Editable edit = editText.getEditableText();
+        // 获取光标位置
+        int index = editText.getSelectionStart();
+        // 光标所在位置插入文字
+        edit.insert(index, ss);
+        Log.i("图文混排",editText.getText().toString());
+    }
     private static class MyAtSpan extends ClickableSpan {
         private String mName;
         private Context context;
@@ -147,8 +170,8 @@ public class TextUtils {
 
         @Override
         public void onClick(View widget) {
-        //    String tag= mTag.substring(1,mTag.length()-1);
-        //    EventBus.getDefault().post(new TagEvent(mTag));
+            String tag= mTag.substring(1,mTag.length()-1);
+            EventBus.getDefault().post(new TagEvent(tag));
         }
     }
 }

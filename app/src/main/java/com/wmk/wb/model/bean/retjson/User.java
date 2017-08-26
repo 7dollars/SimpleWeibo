@@ -31,6 +31,9 @@ public class User {
     @SerializedName("statuses_count")
     public String statuses_count;
 
+    @SerializedName("following")
+    public boolean following;
+
     public String getAvatar_large() {
         if(avatar_large!=null)
             return avatar_large;
@@ -84,5 +87,9 @@ public class User {
 
     public String getStatuses_count() {
         return statuses_count;
+    }
+
+    public boolean isfollowing() {
+        return following;
     }
 }

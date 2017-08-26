@@ -57,7 +57,6 @@ public class CommentsFragment extends Fragment implements ICommentsFG{
         if (getArguments() != null) {
             this.id=getArguments().getLong("id");
         }
-        StaticData.getInstance().cdata.clear();
     }
 
     @Override
@@ -73,16 +72,7 @@ public class CommentsFragment extends Fragment implements ICommentsFG{
         manager.setOrientation(LinearLayoutManager.VERTICAL);
         list.setLayoutManager(manager);
         list.setAdapter(recAdapter);
-       /* EndlessRecyclerOnScrollListener end=new EndlessRecyclerOnScrollListener(manager) {
-            @Override
-            public void onLoadMore(int currentPage) {
-                if(StaticData.getInstance().cdata.size()>0)
-                {
-                    getComments(StaticData.getInstance().cdata.get(StaticData.getInstance().cdata.size()-1).getId());
-                }
-            }
-        };
-        list.addOnScrollListener(end);*/
+
         list.setNestedScrollingEnabled(false);
        // getComments(0);
         return view;
@@ -90,7 +80,7 @@ public class CommentsFragment extends Fragment implements ICommentsFG{
 
     @Override
     public void onResume() {
-        instance.getComments(0);
+        instance.getComments(getContext(),0);
         super.onResume();
     }
 
